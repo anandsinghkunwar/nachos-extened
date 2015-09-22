@@ -39,6 +39,7 @@ NachOSThread::NachOSThread(char* threadName)
     if (currentThread != NULL)
    ppid = currentThread->getPid();
     name = threadName;
+    NumInstr = 0;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
