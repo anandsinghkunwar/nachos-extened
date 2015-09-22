@@ -34,6 +34,10 @@
 
 NachOSThread::NachOSThread(char* threadName)
 {
+    static int currentPid = 1;
+    pid = currentPid++;
+    if (currentThread != NULL)
+   ppid = currentThread->getPid();
     name = threadName;
     stackTop = NULL;
     stack = NULL;
@@ -89,7 +93,7 @@ NachOSThread::ThreadFork(VoidFunctionPtr func, int arg)
 {
     DEBUG('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
 	  name, (int) func, arg);
-    
+
     ThreadStackAllocate(func, arg);
 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);

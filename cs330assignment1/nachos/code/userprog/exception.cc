@@ -173,37 +173,51 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
-    else if ((which == SyscallException) && (type == syscall_GetPA)){
-      vaddr = machine->ReadRegister(4);
-      unsigned int pageFrame,offset,vpn = vaddr/PageSize;
-      if(vpn >= machine->pageTableSize ){   //virtual page number is larger than the number of entries in the page table
-       machine->WriteRegister(2,-1);
-      }
-      else if (!machine->pageTable[vpn].valid){   //The page table entry has the valid field set to false
-       machine->WriteRegister(2,-1);
-      }
-      TranslationEntry *entry;
-      entry = &machine->pageTable[vpn];
-      pageFrame = entry->physicalPage;
-      offset = (unsigned) vaddr % PageSize;
-      if (pageFrame >= NumPhysPages){   //physical page number is larger than the # of physical pages
-       machine->WriteRegister(2,-1);
-      }
-      else{   //return physical address
-       machine->WriteRegister(2,(pageFrame * PageSize)+offset);
-      }
+    else if ((which == SyscallException) && (type == syscall_GetPA)) {
+       vaddr = machine->ReadRegister(4);
+       unsigned int pageFrame,offset,vpn = vaddr/PageSize;
+       if (vpn >= machine->pageTableSize ) {   //virtual page number is larger than the number of entries in the page table
+        machine->WriteRegister(2,-1);
+       }
+       else if (!machine->pageTable[vpn].valid) {   //The page table entry has the valid field set to false
+        machine->WriteRegister(2,-1);
+       }
+       TranslationEntry *entry;
+       entry = &machine->pageTable[vpn];
+       pageFrame = entry->physicalPage;
+       offset = (unsigned) vaddr % PageSize;
+       if (pageFrame >= NumPhysPages) {   //physical page number is larger than the # of physical pages
+        machine->WriteRegister(2,-1);
+       }
+       else {   //return physical address
+        machine->WriteRegister(2,(pageFrame * PageSize)+offset);
+       }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
-    else if ((which == SyscallException) && (type == syscall_Yield)){
+    else if ((which == SyscallException) && (type == syscall_Yield)) {
        currentThread->YieldCPU();
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
-  }
+    }
+    else if ((which == SyscallException) && (type == syscall_GetPID)) {
+       machine->WriteRegister(2, currentThread->getPid());
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_GetPPID)) {
+       machine->WriteRegister(2, currentThread->getPpid());
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
