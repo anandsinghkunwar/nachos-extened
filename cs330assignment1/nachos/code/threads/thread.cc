@@ -35,6 +35,7 @@
 NachOSThread::NachOSThread(char* threadName)
 {
     name = threadName;
+    NumInstr = 0;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;

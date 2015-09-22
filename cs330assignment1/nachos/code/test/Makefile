@@ -37,7 +37,7 @@ CPP = /usr/bin/cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort printtest vectorsum testregPA forkjoin testexec testyield testtime
+all: halt shell matmult sort printtest vectorsum testregPA forkjoin testexec testyield testtime testNumInstr
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -135,6 +135,11 @@ testtime.o: testtime.c
 testtime: testtime.o start.o
 	$(LD) $(LDFLAGS) start.o testtime.o -o testtime.coff
 	../bin/coff2noff testtime.coff testtime
-
+testNumInstr.o: testNumInstr.c
+	$(CC) $(INCDIR) -S testNumInstr.c -o testNumINstr.o
+	$(AS) $(CFLAGS) testNumInstr.s -o testNumInstr.o
+testNumInstr: testNumInstr.o start.o
+	$(LD) $(LDFLAGS) start.o testNumInstr.o -o testNumInstr.coff
+	../bin/coff2noff testNumInstr.coff testNumInstr
 clean:
 	rm -f start.o halt.o halt shell.o shell sort.o sort matmult.o matmult halt.coff shell.coff sort.coff matmult.coff printtest.o printtest printtest.coff vectorsum.o vectorsum.coff vectorsum testregPA.o testregPA.coff testregPA forkjoin.o forkjoin.coff forkjoin testexec.o testexec.coff testexec testyield.o testyield.coff testyield testtime.o testtime.coff testtime

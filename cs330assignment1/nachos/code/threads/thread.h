@@ -101,7 +101,8 @@ class NachOSThread {
     void setStatus(ThreadStatus st) { status = st; }
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
-
+    unsigned int getNumInstr(){return NumInstr;}
+    void incrNumInstr(){NumInstr++;}
   private:
     // some of the private data for this class is listed above
     
@@ -116,7 +117,7 @@ class NachOSThread {
 					// Used internally by ThreadFork()
 
     int pid, ppid;			// My pid and my parent's pid
-
+    unsigned int NumInstr; 		// Number of executed instructions
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
 // one for its state while executing user code, one for its state 
