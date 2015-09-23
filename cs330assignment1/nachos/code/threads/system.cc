@@ -18,6 +18,7 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
+List *sleepingThreads;              //currently sleeping threads
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -61,6 +62,19 @@ extern void Cleanup();
 static void
 TimerInterruptHandler(int dummy)
 {
+    int key;
+    NachOSThread *tempThread;
+    while(!sleepingThreads->IsEmpty()) {
+        tempThread = (NachOSThread *) sleepingThreads->SortedRemove(&key);
+        if(key > stats->totalTicks) {
+            sleepingThreads->SortedInsert(tempThread, key);
+            break;
+        }
+        IntStatus oldLevel = interrupt->SetLevel(IntOff);
+        scheduler->ReadyToRun(tempThread);
+        (void) interrupt->SetLevel(oldLevel);
+    }
+
     if (interrupt->getStatus() != IdleMode)
 	interrupt->YieldOnReturn();
 }
@@ -83,6 +97,8 @@ Initialize(int argc, char **argv)
     bool randomYield = FALSE;
 
     initializedConsoleSemaphores = false;
+
+    sleepingThreads = new List();
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program

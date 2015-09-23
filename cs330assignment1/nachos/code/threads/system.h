@@ -28,6 +28,8 @@ extern Scheduler *scheduler;			// the ready list
 extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
+extern List *sleepingThreads;				// sleeping threads
+
 
 extern bool initializedConsoleSemaphores;       // Used to initialize the semaphores for console I/O exactly once
 
