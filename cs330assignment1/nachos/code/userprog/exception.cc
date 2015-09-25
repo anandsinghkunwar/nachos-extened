@@ -230,8 +230,9 @@ ExceptionHandler(ExceptionType which)
           currentThread->YieldCPU();
        else {
           sleepingThreads->SortedInsert(currentThread, stats->totalTicks+machine->ReadRegister(4));
+          IntStatus oldLevel = interrupt->SetLevel(IntOff);
           currentThread->PutThreadToSleep();
-
+          (void) interrupt->SetLevel(oldLevel);
        }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));

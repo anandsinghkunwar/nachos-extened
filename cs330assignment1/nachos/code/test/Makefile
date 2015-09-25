@@ -37,7 +37,7 @@ CPP = /usr/bin/cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort printtest vectorsum testregPA forkjoin testexec testyield testtime testNumInstr
+all: halt shell matmult sort printtest vectorsum testregPA forkjoin testexec testyield testtime testNumInstr testsleep
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -135,7 +135,7 @@ testtime.o: testtime.c
 testtime: testtime.o start.o
 	$(LD) $(LDFLAGS) start.o testtime.o -o testtime.coff
 	../bin/coff2noff testtime.coff testtime
-	
+
 testNumInstr.o: testNumInstr.c
 	$(CC) $(INCDIR) -S testNumInstr.c -o testNumInstr.s
 	$(AS) $(CFLAGS) testNumInstr.s -o testNumInstr.o
@@ -143,5 +143,14 @@ testNumInstr.o: testNumInstr.c
 testNumInstr: testNumInstr.o start.o
 	$(LD) $(LDFLAGS) start.o testNumInstr.o -o testNumInstr.coff
 	../bin/coff2noff testNumInstr.coff testNumInstr
+
+testsleep.o: testsleep.c
+	$(CC) $(INCDIR) -S testsleep.c -o testsleep.s
+	$(AS) $(CFLAGS) testsleep.s -o testsleep.o
+	rm -f testsleep.s
+testsleep: testsleep.o start.o
+	$(LD) $(LDFLAGS) start.o testsleep.o -o testsleep.coff
+	../bin/coff2noff testsleep.coff testsleep
+
 clean:
-	rm -f start.o halt.o halt shell.o shell sort.o sort matmult.o matmult halt.coff shell.coff sort.coff matmult.coff printtest.o printtest printtest.coff vectorsum.o vectorsum.coff vectorsum testregPA.o testregPA.coff testregPA forkjoin.o forkjoin.coff forkjoin testexec.o testexec.coff testexec testyield.o testyield.coff testyield testtime.o testtime.coff testtime testNumInstr.o testNumInstr.coff testNumInstr
+	rm -f start.o halt.o halt shell.o shell sort.o sort matmult.o matmult halt.coff shell.coff sort.coff matmult.coff printtest.o printtest printtest.coff vectorsum.o vectorsum.coff vectorsum testregPA.o testregPA.coff testregPA forkjoin.o forkjoin.coff forkjoin testexec.o testexec.coff testexec testyield.o testyield.coff testyield testtime.o testtime.coff testtime testNumInstr.o testNumInstr.coff testNumInstr testsleep.o testsleep.coff testsleep
