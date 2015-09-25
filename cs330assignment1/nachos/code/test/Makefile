@@ -135,11 +135,13 @@ testtime.o: testtime.c
 testtime: testtime.o start.o
 	$(LD) $(LDFLAGS) start.o testtime.o -o testtime.coff
 	../bin/coff2noff testtime.coff testtime
+	
 testNumInstr.o: testNumInstr.c
-	$(CC) $(INCDIR) -S testNumInstr.c -o testNumINstr.o
+	$(CC) $(INCDIR) -S testNumInstr.c -o testNumInstr.s
 	$(AS) $(CFLAGS) testNumInstr.s -o testNumInstr.o
+	rm -f testNumInstr.s
 testNumInstr: testNumInstr.o start.o
 	$(LD) $(LDFLAGS) start.o testNumInstr.o -o testNumInstr.coff
 	../bin/coff2noff testNumInstr.coff testNumInstr
 clean:
-	rm -f start.o halt.o halt shell.o shell sort.o sort matmult.o matmult halt.coff shell.coff sort.coff matmult.coff printtest.o printtest printtest.coff vectorsum.o vectorsum.coff vectorsum testregPA.o testregPA.coff testregPA forkjoin.o forkjoin.coff forkjoin testexec.o testexec.coff testexec testyield.o testyield.coff testyield testtime.o testtime.coff testtime
+	rm -f start.o halt.o halt shell.o shell sort.o sort matmult.o matmult halt.coff shell.coff sort.coff matmult.coff printtest.o printtest printtest.coff vectorsum.o vectorsum.coff vectorsum testregPA.o testregPA.coff testregPA forkjoin.o forkjoin.coff forkjoin testexec.o testexec.coff testexec testyield.o testyield.coff testyield testtime.o testtime.coff testtime testNumInstr.o testNumInstr.coff testNumInstr
