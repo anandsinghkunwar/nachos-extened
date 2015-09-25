@@ -61,6 +61,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
     NoffHeader noffH;
     unsigned int i, size;
+    char *startAddress;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -75,7 +76,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
-    ASSERT(numPages <= NumPhysPages);		// check we're not trying
+    ASSERT(totalAllocatedPages + numPages <= NumPhysPages);		// check we're not trying
 						// to run anything too big --
 						// at least until we have
 						// virtual memory
@@ -85,8 +86,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
-	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i].physicalPage = i;
+	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page # + totalAllocatedPages
+	pageTable[i].physicalPage = i + totalAllocatedPages; // append the new phys pages after the currently allocated pages
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -94,25 +95,27 @@ AddrSpace::AddrSpace(OpenFile *executable)
 					// a separate page, we could set its 
 					// pages to be read-only
     }
-    
+
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
+    startAddress = machine->mainMemory + totalAllocatedPages * PageSize;     // Start address of the space
+    bzero(startAddress, size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-			noffH.code.size, noffH.code.inFileAddr);
+        executable->ReadAt(&(startAddress[noffH.code.virtualAddr]),
+			noffH.code.size, noffH.code.inFileAddr);                            // Read code segment into memory starting at startAddress
     }
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-			noffH.initData.size, noffH.initData.inFileAddr);
+        executable->ReadAt(&(startAddress[noffH.initData.virtualAddr]),
+			noffH.initData.size, noffH.initData.inFileAddr);                    // Read data segment into memory starting at startAddress
     }
 
+    totalAllocatedPages += numPages; // Number of allocated pages increased by numPages
 }
 
 //----------------------------------------------------------------------
