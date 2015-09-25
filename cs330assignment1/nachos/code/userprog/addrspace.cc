@@ -65,7 +65,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
     static unsigned int totalAllocatedPages = 0; // Number of physical pages that are
                                              // currently allocated
     if (executable == NULL) {                // Allocating space without an executable - must be fork
-       size = currentThread->space->numPages * PageSize;
+       numPages = currentThread->space->getNumPages();
+       size = numPages * PageSize;
     }
     else {
        executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
@@ -103,10 +104,14 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    startAddress = machine->mainMemory + totalAllocatedPages * PageSize;     // Start address of the space
+    startAddress = this->getStartAddress();     // Start address of the space
     bzero(startAddress, size);
     
     if (executable == NULL) {       // Allocating space without an executable - must be fork
+       parentStartAddress = currentThread->getStartAddress();
+       for (i = 0; i < numPages * PageSize; i++) {
+          machine->mainMemory[startAddress+i] = machine->mainMemory[parentStartAddress+i];
+       }
     } 
     
     else {

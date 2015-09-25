@@ -30,6 +30,9 @@ class AddrSpace {
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
+    unsigned int getNumPages() { return numPages; }
+    char *getStartAddress() { return &(machine->mainMemory[pageTable[0].physicalPage * PageSize]); } // Return address
+                                                                           //of first byte in phys memory
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
