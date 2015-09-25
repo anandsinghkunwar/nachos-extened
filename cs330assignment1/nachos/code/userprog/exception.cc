@@ -75,6 +75,7 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
     int memval, vaddr, printval, tempval, exp, val;
+    char filename[64];
     unsigned printvalus;        // Used for printing in hex
     if (!initializedConsoleSemaphores) {
        readAvail = new Semaphore("read avail", 0);
@@ -219,14 +220,14 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
     else if ((which == SyscallException) && (type == syscall_NumInstr)) {
-       machine->WriteRegister(2, currentThread->getNumInstr());
+       machine->WriteRegister(2, currentThread->getNumInstr()-5);
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
     else if ((which == SyscallException) && (type == syscall_Sleep)) {
-       if( machine->ReadRegister(4)==0)
+       if (machine->ReadRegister(4) == 0)
           currentThread->YieldCPU();
        else {
           sleepingThreads->SortedInsert(currentThread, stats->totalTicks+machine->ReadRegister(4));
@@ -238,6 +239,37 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_Exec)) {
+       vaddr = machine->ReadRegister(4);
+       int i = 0;
+       machine->ReadMem(vaddr, 1, &memval);
+       while ((*(char*)&memval) != '\0') {
+          filename[i] = *(char*)&memval;
+          vaddr++;
+          i++;
+          machine->ReadMem(vaddr, 1, &memval);
+       }
+       filename[i] = '\0';                      // filename stores the executable name
+
+       OpenFile *executable = fileSystem->Open(filename);
+       AddrSpace *space;
+
+       if (executable == NULL) {                   // If no such executable exists
+          machine->WriteRegister(2, -1);
+          // Advance program counters.
+          machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+          machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+          machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+       }
+       else {
+          space = new AddrSpace(executable);
+          currentThread->space = space;
+          delete executable;        // close file
+          space->InitRegisters();      // set the initial register values
+          space->RestoreState();    // load page table register
+          machine->Run();        // jump to the user progam
+       }
     }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
