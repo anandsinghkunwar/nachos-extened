@@ -231,7 +231,6 @@ ExceptionHandler(ExceptionType which)
        else {
           sleepingThreads->SortedInsert(currentThread, stats->totalTicks+machine->ReadRegister(4));
           currentThread->PutThreadToSleep();
-
        }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));

@@ -36,8 +36,6 @@ class AddrSpace {
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
-    static unsigned int totalAllocatedPages; // Number of physical pages that are
-               // currently allocated
 };
 
 #endif // ADDRSPACE_H
