@@ -70,6 +70,20 @@ static void ConvertIntToHex (unsigned v, Console *console)
    }
 }
 
+void ChildInitialize(int num)
+{
+   if (threadToBeDestroyed != NULL)
+      delete threadToBeDestroyed;
+   threadToBeDestroyed = NULL;
+
+   if (currentThread->space != NULL) {
+      currentThread->space->RestoreUserState();
+      currentThread->space->RestoreState();
+   }
+
+   machine->Run();
+}
+
 void
 ExceptionHandler(ExceptionType which)
 {
@@ -275,6 +289,17 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == syscall_Fork)) {
        childThread = new NachOSThread("forked thread");
        space = new AddrSpace(NULL);
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+       childThread->SaveUserState();      // Copy the parent's context to the child
+       childThread->setReturnReg(0);
+       childThread->ThreadStackAllocate(ChildInitialize, 0);
+       IntStatus oldLevel = interrupt->SetLevel(IntOff);
+       scheduler->ReadyToRun(childThread);
+       (void) interrupt->SetLevel(oldLevel);
+       currentThread->setReturnReg(childThread->getPid());
     }
 
     else if ((which == SyscallException) && (type == syscall_Exit)) {
