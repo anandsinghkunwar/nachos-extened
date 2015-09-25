@@ -76,6 +76,7 @@ ExceptionHandler(ExceptionType which)
     int type = machine->ReadRegister(2);
     int memval, vaddr, printval, tempval, exp, val;
     char filename[64];
+    NachOSThread *nextThread, *childThread;
     unsigned printvalus;        // Used for printing in hex
     if (!initializedConsoleSemaphores) {
        readAvail = new Semaphore("read avail", 0);
@@ -269,6 +270,21 @@ ExceptionHandler(ExceptionType which)
           space->InitRegisters();      // set the initial register values
           space->RestoreState();    // load page table register
           machine->Run();        // jump to the user progam
+       }
+    }
+    else if ((which == SyscallException) && (type == syscall_Fork)) {
+       childThread = new NachOSThread("forked thread");
+       space = new AddrSpace(NULL);
+    }
+
+    else if ((which == SyscallException) && (type == syscall_Exit)) {
+       (void) interrupt->SetLevel(IntOff);
+       threadToBeDestroyed = currentThread;
+       currentThread->setStatus(BLOCKED);
+       machine->WriteRegister(2, machine->ReadRegister(4));
+       nextThread = scheduler->FindNextToRun();
+       if (nextThread != NULL) {
+          scheduler->Run(nextThread);
        }
     }
     else {

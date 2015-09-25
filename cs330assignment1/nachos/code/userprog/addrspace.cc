@@ -64,19 +64,23 @@ AddrSpace::AddrSpace(OpenFile *executable)
     char *startAddress;
     static unsigned int totalAllocatedPages = 0; // Number of physical pages that are
                                              // currently allocated
-    executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
-    if ((noffH.noffMagic != NOFFMAGIC) && 
-		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
-    	SwapHeader(&noffH);
-    ASSERT(noffH.noffMagic == NOFFMAGIC);
-
-// how big is address space?
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
-			+ UserStackSize;	// we need to increase the size
-						// to leave room for the stack
-    numPages = divRoundUp(size, PageSize);
-    size = numPages * PageSize;
-
+    if (executable == NULL) {                // Allocating space without an executable - must be fork
+       size = currentThread->space->numPages * PageSize;
+    }
+    else {
+       executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+       if ((noffH.noffMagic != NOFFMAGIC) && 
+   		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
+       	SwapHeader(&noffH);
+       ASSERT(noffH.noffMagic == NOFFMAGIC);
+   
+   // how big is address space?
+       size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
+   			+ UserStackSize;	// we need to increase the size
+   						// to leave room for the stack
+       numPages = divRoundUp(size, PageSize);
+       size = numPages * PageSize;
+    }
     ASSERT(totalAllocatedPages + numPages <= NumPhysPages);		// check we're not trying
 						// to run anything too big --
 						// at least until we have
@@ -101,21 +105,25 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // and the stack segment
     startAddress = machine->mainMemory + totalAllocatedPages * PageSize;     // Start address of the space
     bzero(startAddress, size);
-
-// then, copy in the code and data segments into memory
-    if (noffH.code.size > 0) {
-        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
-			noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt(&(startAddress[noffH.code.virtualAddr]),
-			noffH.code.size, noffH.code.inFileAddr);                            // Read code segment into memory starting at startAddress
+    
+    if (executable == NULL) {       // Allocating space without an executable - must be fork
+    } 
+    
+    else {
+   // then, copy in the code and data segments into memory
+       if (noffH.code.size > 0) {
+           DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
+   			noffH.code.virtualAddr, noffH.code.size);
+           executable->ReadAt(&(startAddress[noffH.code.virtualAddr]),
+   			noffH.code.size, noffH.code.inFileAddr);                            // Read code segment into memory starting at startAddress
+       }
+       if (noffH.initData.size > 0) {
+           DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
+   			noffH.initData.virtualAddr, noffH.initData.size);
+           executable->ReadAt(&(startAddress[noffH.initData.virtualAddr]),
+   			noffH.initData.size, noffH.initData.inFileAddr);                    // Read data segment into memory starting at startAddress
+       }
     }
-    if (noffH.initData.size > 0) {
-        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
-			noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt(&(startAddress[noffH.initData.virtualAddr]),
-			noffH.initData.size, noffH.initData.inFileAddr);                    // Read data segment into memory starting at startAddress
-    }
-
     totalAllocatedPages += numPages; // Number of allocated pages increased by numPages
 }
 
