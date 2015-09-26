@@ -107,6 +107,8 @@ class NachOSThread {
     void* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key DNE else return 1
     void* exitedProcesses(int key){ return exitedChildProcesses->GetValue(key); }	//Return exit status if key exists else return NULL
     NachOSThread *parentThread;
+    void aliveAppend(void *item, int key){ aliveChildProcesses->SortedInsert(item, key); }
+    void exitAppend(void *item, int key){ exitedChildProcesses->SortedInsert(item, key); }
 
   private:
     // some of the private data for this class is listed above
