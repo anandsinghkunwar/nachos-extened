@@ -42,6 +42,7 @@ NachOSThread::NachOSThread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    parentThread = NULL;
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -93,8 +94,10 @@ NachOSThread::ThreadFork(VoidFunctionPtr func, int arg)
 {
     DEBUG('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
 	  name, (int) func, arg);
-    if (currentThread != NULL)
-   ppid = currentThread->getPid();
+    if (currentThread != NULL) {
+       ppid = currentThread->getPid();
+       parentThread = currentThread;
+    }
 
     ThreadStackAllocate(func, arg);
 

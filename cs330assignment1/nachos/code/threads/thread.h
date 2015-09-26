@@ -106,6 +106,7 @@ class NachOSThread {
     void incrNumInstr(){NumInstr++;} 
     void* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key DNE else return 1
     void* exitedProcesses(int key){ return exitedChildProcesses->GetValue(key); }	//Return exit status if key exists else return NULL
+    NachOSThread *parentThread;
 
   private:
     // some of the private data for this class is listed above
