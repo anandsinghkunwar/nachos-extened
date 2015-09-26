@@ -72,15 +72,15 @@ static void ConvertIntToHex (unsigned v, Console *console)
 
 void ChildInitialize(int num)
 {
-   if (threadToBeDestroyed != NULL)
+   if (threadToBeDestroyed != NULL) {
       delete threadToBeDestroyed;
-   threadToBeDestroyed = NULL;
+      threadToBeDestroyed = NULL;
+   }
 
    if (currentThread->space != NULL) {
       currentThread->RestoreUserState();
       currentThread->space->RestoreState();
    }
-
    machine->Run();
 }
 
@@ -289,6 +289,7 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == syscall_Fork)) {
        childThread = new NachOSThread("forked thread");
        space = new AddrSpace(NULL);
+       childThread->space = space;
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
@@ -296,40 +297,14 @@ ExceptionHandler(ExceptionType which)
        childThread->SaveUserState();      // Copy the parent's context to the child
        childThread->setReturnReg(0);
        childThread->ThreadFork(ChildInitialize, 0);
-       currentThread->setReturnReg(childThread->getPid());
+       machine->WriteRegister(2, childThread->getPid());
     }
 
     else if ((which == SyscallException) && (type == syscall_Exit)) {
        (void) interrupt->SetLevel(IntOff);
-       threadToBeDestroyed = currentThread;
-       currentThread->setStatus(BLOCKED);
        machine->WriteRegister(2, machine->ReadRegister(4));
-       nextThread = scheduler->FindNextToRun();
-       if (nextThread != NULL) {
-          scheduler->Run(nextThread);
-       }
-    }
-    else if ((which == SyscallException) && (type == syscall_Join)) {
-	val = machine->ReadRegister(4);
-	nextThread = scheduler->FindNextToRun();
-	if(nextThread != NULL){
-	    tempval = nextThread->getpid();
-	    startIndex = tempval;
-	    while(tempval != val){
-		scheduler->ReadyToRun(nextThread);
-		nextThread = scheduler->FindNextToRun();
-		tempval = nextThread->getPid();
-		if(tempval == startIndex)
-		    break;
-	    }
-	    if(tempval == val){
-		scheduler->ReadyToRun(nextThread);
-		currentThread->PutThreadToSleep();//waking up the parent will be done when the child calls system_Exit
-	    }
-	}
-	else{// nextThread is NULL or the specified thread is not in ready queue
-	    
-	}
+       threadToBeDestroyed = currentThread;
+       currentThread->PutThreadToSleep();
     }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);

@@ -2,20 +2,19 @@
 
 int main()
 {
-   if (system_Fork() == 0)
+   int a = system_Fork();
+   if (a == 0)
    {
-      system_PrintString("Hello, test string ");
-      system_PrintInt(system_GetPID());
-      system_PrintChar(' ');
-      system_PrintInt(system_GetPPID());
+      system_PrintString("Hellofuckfuck");
       system_PrintChar('\n');
    }
 
    else
    {
-      system_PrintString("Hello, parent's test string ");
-      system_PrintInt(system_GetPID());
+      system_PrintInt(a);
       system_PrintChar('\n');
    }
+   
+   system_PrintChar('X');
    return 0;
 }
