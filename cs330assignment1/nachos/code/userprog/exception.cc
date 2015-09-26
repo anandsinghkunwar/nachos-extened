@@ -92,7 +92,7 @@ ExceptionHandler(ExceptionType which)
     int *exitStatus;
     AddrSpace *space;
     char filename[64];
-    NachOSThread *nextThread, *childThread;
+    NachOSThread *nextThread, *childThread, *parentThread;
     unsigned printvalus;        // Used for printing in hex
     if (!initializedConsoleSemaphores) {
        readAvail = new Semaphore("read avail", 0);
@@ -289,6 +289,7 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Fork)) {
        childThread = new NachOSThread("forked thread");
+       currentThread->aliveAppend(NULL,childThread->getPid());
        space = new AddrSpace(NULL);       // When NULL is passed to the constructor, it copies the parent's space
        childThread->space = space;
        // Advance program counters.
@@ -302,7 +303,12 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Exit)) {
        (void) interrupt->SetLevel(IntOff);
-       machine->WriteRegister(2, machine->ReadRegister(4));
+       val = machine->ReadRegister(4);
+       machine->WriteRegister(2, val);
+       parentThread = currentThread->parentThread;
+       if(parentThread != NULL){
+	  parentThread->exitAppend(&val, currentThread->getPid());
+       }
        threadToBeDestroyed = currentThread;
        numThreads--;
        if ((nextThread = scheduler->FindNextToRun()) != NULL) {
