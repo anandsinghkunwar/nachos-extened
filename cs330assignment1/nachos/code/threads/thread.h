@@ -105,7 +105,6 @@ class NachOSThread {
     int getPpid() { return ppid; }      // Return the thread ppid
     unsigned int getNumInstr(){return NumInstr;}
     void incrNumInstr(){NumInstr++;}
-    void setReturnReg(int retval) { userRegisters[2] = retval; }
 
   private:
     // some of the private data for this class is listed above
@@ -132,6 +131,8 @@ class NachOSThread {
   public:
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
+    void setReturnReg(int retval) { userRegisters[2] = retval; }
+
 
     AddrSpace *space;			// User code this thread is running.
 #endif
