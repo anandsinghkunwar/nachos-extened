@@ -314,7 +314,7 @@ ExceptionHandler(ExceptionType which)
 	val = machine->ReadRegister(4);
 	if(currentThread->aliveProcesses(val) != NULL)
 	    currentThread->PutThreadToSleep();
-	exitStatus = currentThread->exitedProcesses(val);
+	exitStatus = (int *) currentThread->exitedProcesses(val);
 	if(exitStatus != NULL)
 	    machine->WriteRegister(2,*exitStatus);
 	else
