@@ -104,7 +104,9 @@ class NachOSThread {
     int getPid() { return pid; }        // Return the thread pid
     int getPpid() { return ppid; }      // Return the thread ppid
     unsigned int getNumInstr(){return NumInstr;}
-    void incrNumInstr(){NumInstr++;}
+    void incrNumInstr(){NumInstr++;} 
+    int* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key DNE else return 1
+    int* exitedProcesses(int key){ return exitedChildProcesses->GetValue(key;) }	//Return exit status if key exists else return NULL
 
   private:
     // some of the private data for this class is listed above
@@ -118,7 +120,7 @@ class NachOSThread {
     void ThreadStackAllocate(VoidFunctionPtr func, int arg);
     					// Allocate a stack for thread.
 					// Used internally by ThreadFork()
-
+    List* exitedChildProcesses, aliveChildProcesses;
     int pid, ppid;			// My pid and my parent's pid
     unsigned int NumInstr; 		// Number of executed instructions
 #ifdef USER_PROGRAM

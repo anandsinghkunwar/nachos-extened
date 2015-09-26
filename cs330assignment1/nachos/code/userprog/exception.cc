@@ -89,6 +89,7 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
     int memval, vaddr, printval, tempval, exp, val;
+    int *exitStatus;
     AddrSpace *space;
     char filename[64];
     NachOSThread *nextThread, *childThread;
@@ -311,25 +312,17 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Join)) {
 	val = machine->ReadRegister(4);
-	nextThread = scheduler->FindNextToRun();
-	if(nextThread != NULL){
-	    tempval = nextThread->getpid();
-	    startIndex = tempval;
-	    while(tempval != val){
-		scheduler->ReadyToRun(nextThread);
-		nextThread = scheduler->FindNextToRun();
-		tempval = nextThread->getPid();
-		if(tempval == startIndex)
-		    break;
-	    }
-	    if(tempval == val){
-		scheduler->ReadyToRun(nextThread);
-		currentThread->PutThreadToSleep();//waking up the parent will be done when the child calls system_Exit
-	    }
-	}
-	else{// nextThread is NULL or the specified thread is not in ready queue
-	    
-	}
+	if(currentThread->aliveProcesses(val) != NULL)
+	    currentThread->PutThreadToSleep();
+	exitStatus = currentThread->exitedProcesses(val);
+	if(exitStatus != NULL)
+	    machine->WriteRegister(2,*exitStatus);
+	else
+	    machine->WriteRegister(2,-1);
+	// Advance program counters.
+	machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+	machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+	machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);

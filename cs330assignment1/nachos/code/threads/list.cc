@@ -160,6 +160,20 @@ List::IsEmpty()
 	return FALSE; 
 }
 
+void *
+List::GetValue(int key){
+    if(IsEmpty())
+	return NULL;
+    else{
+	for(ListElement *ptr = first; ptr != NULL; ptr = ptr->next){
+	    if(ptr->key == key){
+		return ptr->item;
+	    }
+	}
+	return NULL;
+    }
+}
+
 //----------------------------------------------------------------------
 // List::SortedInsert
 //      Insert an "item" into a list, so that the list elements are
