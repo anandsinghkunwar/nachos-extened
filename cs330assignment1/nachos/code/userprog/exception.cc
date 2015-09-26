@@ -89,6 +89,7 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
     int memval, vaddr, printval, tempval, exp, val;
+    int *exitStatus;
     AddrSpace *space;
     char filename[64];
     NachOSThread *nextThread, *childThread;
@@ -295,16 +296,29 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
        childThread->SaveUserState();      // Copy the parent's context to the child
-       childThread->setReturnReg(0);
+       childThread->setReturnReg(0);      // Set the return register for the child to 0
        childThread->ThreadFork(ChildInitialize, 0);
-       machine->WriteRegister(2, childThread->getPid());
+       machine->WriteRegister(2, childThread->getPid()); //Set the parent return val to child's pid
     }
-
     else if ((which == SyscallException) && (type == syscall_Exit)) {
        (void) interrupt->SetLevel(IntOff);
        machine->WriteRegister(2, machine->ReadRegister(4));
        threadToBeDestroyed = currentThread;
        currentThread->PutThreadToSleep();
+    }
+    else if ((which == SyscallException) && (type == syscall_Join)) {
+       val = machine->ReadRegister(4);
+       if(currentThread->aliveProcesses(val) != NULL)
+       currentThread->PutThreadToSleep();
+       exitStatus = (int *) currentThread->exitedProcesses(val);
+       if(exitStatus != NULL)
+          machine->WriteRegister(2,*exitStatus);
+       else
+      	 machine->WriteRegister(2,-1);
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);

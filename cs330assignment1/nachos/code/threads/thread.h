@@ -39,7 +39,7 @@
 
 #include "copyright.h"
 #include "utility.h"
-
+#include "list.h"
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
@@ -54,7 +54,6 @@
 // Size of the thread's private execution stack.
 // WATCH OUT IF THIS ISN'T BIG ENOUGH!!!!!
 #define StackSize	(4 * 1024)	// in words
-
 
 // Thread state
 enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
@@ -104,7 +103,9 @@ class NachOSThread {
     int getPid() { return pid; }        // Return the thread pid
     int getPpid() { return ppid; }      // Return the thread ppid
     unsigned int getNumInstr(){return NumInstr;}
-    void incrNumInstr(){NumInstr++;}
+    void incrNumInstr(){NumInstr++;} 
+    void* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key DNE else return 1
+    void* exitedProcesses(int key){ return exitedChildProcesses->GetValue(key); }	//Return exit status if key exists else return NULL
 
   private:
     // some of the private data for this class is listed above
@@ -118,7 +119,7 @@ class NachOSThread {
     void ThreadStackAllocate(VoidFunctionPtr func, int arg);
     					// Allocate a stack for thread.
 					// Used internally by ThreadFork()
-
+    List *exitedChildProcesses, *aliveChildProcesses;
     int pid, ppid;			// My pid and my parent's pid
     unsigned int NumInstr; 		// Number of executed instructions
 #ifdef USER_PROGRAM
