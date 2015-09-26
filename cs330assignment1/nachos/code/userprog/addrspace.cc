@@ -61,7 +61,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
     NoffHeader noffH;
     unsigned int i, size;
-    char *startAddress;
+    char *startAddress, *parentStartAddress;
     static unsigned int totalAllocatedPages = 0; // Number of physical pages that are
                                              // currently allocated
     if (executable == NULL) {                // Allocating space without an executable - must be fork
@@ -108,9 +108,9 @@ AddrSpace::AddrSpace(OpenFile *executable)
     bzero(startAddress, size);
     
     if (executable == NULL) {       // Allocating space without an executable - must be fork
-       parentStartAddress = currentThread->getStartAddress();
+       parentStartAddress = currentThread->space->getStartAddress();
        for (i = 0; i < numPages * PageSize; i++) {
-          machine->mainMemory[startAddress+i] = machine->mainMemory[parentStartAddress+i];
+          *(startAddress + i) = *(parentStartAddress + i);
        }
     } 
     
@@ -197,4 +197,14 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+}
+
+//----------------------------------------------------------------------
+// AddrSpace::getStartAddress
+//    Return the address in mainMemory of the first byte in the
+// address space.
+//----------------------------------------------------------------------
+char* AddrSpace::getStartAddress()
+{
+    return &(machine->mainMemory[pageTable[0].physicalPage * PageSize]);
 }

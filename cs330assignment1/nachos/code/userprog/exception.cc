@@ -77,7 +77,7 @@ void ChildInitialize(int num)
    threadToBeDestroyed = NULL;
 
    if (currentThread->space != NULL) {
-      currentThread->space->RestoreUserState();
+      currentThread->RestoreUserState();
       currentThread->space->RestoreState();
    }
 
@@ -89,6 +89,7 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
     int memval, vaddr, printval, tempval, exp, val;
+    AddrSpace *space;
     char filename[64];
     NachOSThread *nextThread, *childThread;
     unsigned printvalus;        // Used for printing in hex
@@ -268,7 +269,6 @@ ExceptionHandler(ExceptionType which)
        filename[i] = '\0';                      // filename stores the executable name
 
        OpenFile *executable = fileSystem->Open(filename);
-       AddrSpace *space;
 
        if (executable == NULL) {                   // If no such executable exists
           machine->WriteRegister(2, -1);
@@ -295,10 +295,7 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
        childThread->SaveUserState();      // Copy the parent's context to the child
        childThread->setReturnReg(0);
-       childThread->ThreadStackAllocate(ChildInitialize, 0);
-       IntStatus oldLevel = interrupt->SetLevel(IntOff);
-       scheduler->ReadyToRun(childThread);
-       (void) interrupt->SetLevel(oldLevel);
+       childThread->ThreadFork(ChildInitialize, 0);
        currentThread->setReturnReg(childThread->getPid());
     }
 
