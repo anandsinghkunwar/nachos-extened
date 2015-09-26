@@ -19,6 +19,7 @@ Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
 List *sleepingThreads;              //currently sleeping threads
+int numThreads;         // total number of threads
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -99,6 +100,7 @@ Initialize(int argc, char **argv)
     initializedConsoleSemaphores = false;
 
     sleepingThreads = new List();
+    numThreads = 0;
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program

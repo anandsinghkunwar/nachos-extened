@@ -34,6 +34,7 @@
 
 NachOSThread::NachOSThread(char* threadName)
 {
+    numThreads++;
     static int currentPid = 1;
     pid = currentPid++;
     name = threadName;
@@ -154,6 +155,7 @@ NachOSThread::FinishThread ()
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
     
     threadToBeDestroyed = currentThread;
+    numThreads--;
     PutThreadToSleep();					// invokes SWITCH
     // not reached
 }

@@ -289,7 +289,7 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Fork)) {
        childThread = new NachOSThread("forked thread");
-       space = new AddrSpace(NULL);
+       space = new AddrSpace(NULL);       // When NULL is passed to the constructor, it copies the parent's space
        childThread->space = space;
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
@@ -304,7 +304,19 @@ ExceptionHandler(ExceptionType which)
        (void) interrupt->SetLevel(IntOff);
        machine->WriteRegister(2, machine->ReadRegister(4));
        threadToBeDestroyed = currentThread;
-       currentThread->PutThreadToSleep();
+       numThreads--;
+       if ((nextThread = scheduler->FindNextToRun()) != NULL) {
+          currentThread->setStatus(BLOCKED);
+          scheduler->Run(nextThread);
+       }
+       else if (numThreads != 0)
+       {
+          currentThread->PutThreadToSleep();
+       }
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
     else if ((which == SyscallException) && (type == syscall_Join)) {
        val = machine->ReadRegister(4);

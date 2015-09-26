@@ -5,7 +5,7 @@ int main()
    int a = system_Fork();
    if (a == 0)
    {
-      system_PrintString("Hellofuckfuck");
+      system_PrintString("Hellolong");
       system_PrintChar('\n');
    }
 
