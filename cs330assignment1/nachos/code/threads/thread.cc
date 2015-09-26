@@ -24,6 +24,12 @@
 					// execution stack, for detecting 
 					// stack overflows
 
+void alertChild(NachOSThread *childThread)
+{
+   childThread->parentThread = NULL;
+   childThread->resetPpid();
+}
+
 //----------------------------------------------------------------------
 // NachOSThread::NachOSThread
 // 	Initialize a thread control block, so that we can then call

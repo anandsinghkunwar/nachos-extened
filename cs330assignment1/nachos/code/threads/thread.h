@@ -102,6 +102,7 @@ class NachOSThread {
     void Print() { printf("%s, ", name); }
     int getPid() { return pid; }        // Return the thread pid
     int getPpid() { return ppid; }      // Return the thread ppid
+    void resetPpid() { ppid = 0; }      // Set ppid to 0
     unsigned int getNumInstr(){return NumInstr;}
     void incrNumInstr(){NumInstr++;} 
     void* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key DNE else return 1
@@ -109,6 +110,7 @@ class NachOSThread {
     NachOSThread *parentThread;
     void aliveAppend(void *item, int key){ aliveChildProcesses->SortedInsert(item, key); }
     void exitAppend(void *item, int key){ exitedChildProcesses->SortedInsert(item, key); }
+    void alertChildren() { activeChildProcesses->Mapcar(alertChild); }        // Alert child processes if parent dies
 
   private:
     // some of the private data for this class is listed above
