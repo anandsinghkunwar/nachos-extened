@@ -309,6 +309,28 @@ ExceptionHandler(ExceptionType which)
           scheduler->Run(nextThread);
        }
     }
+    else if ((which == SyscallException) && (type == syscall_Join)) {
+	val = machine->ReadRegister(4);
+	nextThread = scheduler->FindNextToRun();
+	if(nextThread != NULL){
+	    tempval = nextThread->getpid();
+	    startIndex = tempval;
+	    while(tempval != val){
+		scheduler->ReadyToRun(nextThread);
+		nextThread = scheduler->FindNextToRun();
+		tempval = nextThread->getPid();
+		if(tempval == startIndex)
+		    break;
+	    }
+	    if(tempval == val){
+		scheduler->ReadyToRun(nextThread);
+		currentThread->PutThreadToSleep();//waking up the parent will be done when the child calls system_Exit
+	    }
+	}
+	else{// nextThread is NULL or the specified thread is not in ready queue
+	    
+	}
+    }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
