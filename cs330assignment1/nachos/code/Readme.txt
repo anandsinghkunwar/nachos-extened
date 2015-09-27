@@ -76,7 +76,7 @@ the executable's address space and attach it to the running thread.
 syscall_Exit
 ------------------------------------------------------------------------------------
 Changes made in - exception.cc, system.h, system.cc, thread.cc, thread.h
-Changes - First we declared a global variable numThreads which contains the number
+Changes - We declared a global variable numThreads which contains the number
 of processes running/sleeping/waiting in file system.h by attaching extern in its
 declaration. We initialised this to 0 in Initialize method of system.cc. Whenever a
 thread is created, we increment numThreads by one in the thread constructor. We 
@@ -84,10 +84,12 @@ decrease this variable by when NachOSThread::FinishThread() method is called.
 In the thread class, we also include a pointer to the parent thread (if any), and
 a list of alive children threads. We store another list, exitedChildProcesses,
 which keeps the exit codes of the dead children threads, along with their PID. Now,
-when system_Exit is called, we find the exiting thread's parent and remove the 
-exiting thread from the parent's aliveChildProcesses list, and add the exit code
-to the exitedChildProcesses list. Then, we go to the list of the children of the
-exiting thread, and set their parent thread pointer to NULL and PPID to 0. Then,
-we use our numThreads variable to check if the exiting thread is the only thread in
-the simulator. If so, the machine is halted, otherwise the thread just calls 
-FinishThread.
+when system_Exit is called, we set the exit status as the return value, and then
+use the numThreads variable to check if the exiting thread is the only thread in the
+simulator. If so, the machine is simply halted. Otherwise, we find the exiting 
+thread's parent and remove the exiting thread from the parent's aliveChildProcesses
+list, and add the exit code to the exitedChildProcesses list. We check the parent's
+waitPid variable, and if it matches with the PID of the exiting thread, we reset its
+waitPid variable and wake it up. Then, we go to the list of the children of the 
+exiting thread, and set their parent thread pointer to NULL and PPID to 0. Then, the
+exiting thread calls FinishThread.
