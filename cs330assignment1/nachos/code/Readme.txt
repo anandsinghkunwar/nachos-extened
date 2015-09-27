@@ -117,6 +117,12 @@ exiting thread, and set their parent thread pointer to NULL and PPID to 0. Then,
 exiting thread calls FinishThread.
 
 ------------------------------------------------------------------------------------
+syscall_Join
+------------------------------------------------------------------------------------
+Changes made in - list.h, list.cc, thread.cc, thread.h, exception.cc
+Changes - 
+
+------------------------------------------------------------------------------------
 syscall_Fork
 ------------------------------------------------------------------------------------
 Changes made in - exception.cc, addrspace.cc, addrspace.h, thread.h, thread.cc
@@ -126,7 +132,7 @@ NULL as the executable name. The size of the address space is set to the size of
 parent's address space and then the parent's address space is copied byte-by-byte to
 the newly allocated space.
 In the system call, we create a new thread object called childThread and append it 
-to the current thread's aliveChildProcesses list.Then we construct an address space
+to the current thread's aliveChildProcesses list. Then we construct an address space
 for it according to the above description, and attach that space to the thread. 
 We advanced the program counters and then copy this context to the child's context.
 Then we set the return value register in the parent thread and the child thread to 
