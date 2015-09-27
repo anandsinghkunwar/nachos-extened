@@ -9,6 +9,18 @@ the argument register from register $4 and used the machine->WriteRegister metho
 to write the return value in register $2.
 
 ------------------------------------------------------------------------------------
+syscall_GetPA
+------------------------------------------------------------------------------------
+Changes made in - exception.cc
+Changes - We first compute the virtual page number of the virtual address and
+then perform 3 checks. First - if it exceeds the page table size. Second - if its 
+valid field entry in the page table is false. Third - if the physical page number
+corresponding to it is larger than the number of physical pages. If any of the
+checks evaluate to true, we return -1, otherwise we compute the physical address by
+adding the offset (virtual address % page size) to the product of physical page 
+number & page size and return it.
+
+------------------------------------------------------------------------------------
 syscall_GetPID
 ------------------------------------------------------------------------------------
 Changes made in - thread.cc, thread.h, exception.cc
