@@ -58,13 +58,36 @@ their key (totalTicks at which they have wake up) less than or equal to the
 total ticks of the system and to put them in the ready queue. 
 
 ------------------------------------------------------------------------------------
+syscall_Exec
+------------------------------------------------------------------------------------
+Changes made in - exception.cc, addrspace.cc, addrspace.h
+Changes - We added a static integer variable called totalAllocatedPages in the
+addrspace class, which stores the number of physical pages which have been allocated
+to all threads. This value also corresponds to the first unallocated physical page.
+We allocated space to new threads in main memory starting from the first physical
+page that is unallocated. We added a getStartAddress method which returns the start
+address of the space according to the changes mentioned above. We increment the
+totalAllocatedPages variable after allocating a space.
+For the system call, we first read the filename of the executable to be loaded in a
+string, and then merely mimic the StartProcess function. We use that name to load 
+the executable's address space and attach it to the running thread.
+
+------------------------------------------------------------------------------------
 syscall_Exit
 ------------------------------------------------------------------------------------
-Changes made in - exception.cc, system.h, system.cc, thread.cc
+Changes made in - exception.cc, system.h, system.cc, thread.cc, thread.h
 Changes - First we declared a global variable numThreads which contains the number
 of processes running/sleeping/waiting in file system.h by attaching extern in its
 declaration. We initialised this to 0 in Initialize method of system.cc. Whenever a
-thread is created, we increment variable numThreads by one in the constructor. We 
-decrease this variable by when NachOSThread::FinishThread() method is called and 
-also when exit syscall executes in exception.cc. When this variable is zero we exit
-our program. 
+thread is created, we increment numThreads by one in the thread constructor. We 
+decrease this variable by when NachOSThread::FinishThread() method is called.
+In the thread class, we also include a pointer to the parent thread (if any), and
+a list of alive children threads. We store another list, exitedChildProcesses,
+which keeps the exit codes of the dead children threads, along with their PID. Now,
+when system_Exit is called, we find the exiting thread's parent and remove the 
+exiting thread from the parent's aliveChildProcesses list, and add the exit code
+to the exitedChildProcesses list. Then, we go to the list of the children of the
+exiting thread, and set their parent thread pointer to NULL and PPID to 0. Then,
+we use our numThreads variable to check if the exiting thread is the only thread in
+the simulator. If so, the machine is halted, otherwise the thread just calls 
+FinishThread.
