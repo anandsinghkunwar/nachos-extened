@@ -37,7 +37,7 @@ CPP = /usr/bin/cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort printtest vectorsum testregPA forkjoin testexec testyield testtime testNumInstr testsleep testsimplefork
+all: halt shell matmult sort printtest vectorsum testregPA forkjoin testexec testyield testtime testNumInstr testsleep testsimplefork testJoin
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -159,6 +159,14 @@ testsimplefork.o: testsimplefork.c
 testsimplefork: testsimplefork.o start.o
 	$(LD) $(LDFLAGS) start.o testsimplefork.o -o testsimplefork.coff
 	../bin/coff2noff testsimplefork.coff testsimplefork
+
+testJoin.o: testJoin.c
+	$(CC) $(INCDIR) -S testJoin.c -o testJoin.s
+	$(AS) $(CFLAGS) testJoin.s -o testJoin.o
+	rm -f testJoin.s
+testJoin: testJoin.o start.o
+	$(LD) $(LDFLAGS) start.o testJoin.o -o testJoin.coff
+	../bin/coff2noff testJoin.coff testJoin
 
 clean:
 	rm -f start.o halt.o halt shell.o shell sort.o sort matmult.o matmult halt.coff shell.coff sort.coff matmult.coff printtest.o printtest printtest.coff vectorsum.o vectorsum.coff vectorsum testregPA.o testregPA.coff testregPA forkjoin.o forkjoin.coff forkjoin testexec.o testexec.coff testexec testyield.o testyield.coff testyield testtime.o testtime.coff testtime testNumInstr.o testNumInstr.coff testNumInstr testsleep.o testsleep.coff testsleep testsimplefork.o testsimplefork.coff testsimplefork
