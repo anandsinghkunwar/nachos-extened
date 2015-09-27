@@ -128,7 +128,7 @@ class NachOSThread {
     					// Allocate a stack for thread.
 					// Used internally by ThreadFork()
     List *exitedChildProcesses, *aliveChildProcesses;
-    int pid, ppid, waitPid;			// My pid, my parent's pid and waiting child's pid
+    int pid, ppid, waitPid;			// My pid, my parent's pid and pid of the child I am waiting for
     unsigned int NumInstr; 		// Number of executed instructions
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
