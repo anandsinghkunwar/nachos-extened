@@ -304,23 +304,20 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == syscall_Exit)) {
        status[0] = machine->ReadRegister(4);
        machine->WriteRegister(2, status[0]);
-       parentThread = currentThread->parentThread;
-       if (parentThread != NULL) {
-          parentThread->exitAppend(status, currentThread->getPid());
-          parentThread->removeChild(currentThread->getPid());
-          if(parentThread->getWaitPid() == currentThread->getPid()){
-             parentThread->setWaitPid(0);
-             scheduler->ReadyToRun(parentThread);
-          }
-       }
-       currentThread->alertChildren();
-       if (numThreads > 1)
-       {
-          currentThread->FinishThread();
-       }
-       else if (numThreads == 1)
-       {
-          interrupt->Halt();
+       if (numThreads == 1)
+	 interrupt->Halt();
+       else if (numThreads > 1) {
+          parentThread = currentThread->parentThread;
+	 if (parentThread != NULL) {
+	   parentThread->exitAppend(status, currentThread->getPid());
+	   parentThread->removeChild(currentThread->getPid());
+	   if(parentThread->getWaitPid() == currentThread->getPid()){
+	     parentThread->setWaitPid(0);
+	     scheduler->ReadyToRun(parentThread);
+	   }
+	 }
+	 currentThread->alertChildren();
+	 currentThread->FinishThread();
        }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
