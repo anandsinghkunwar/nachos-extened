@@ -39,6 +39,16 @@ NachOSThread class to return the PPID of the thread, which is the return value o
 the syscall.
 
 ------------------------------------------------------------------------------------
+syscall_GetNumInstr
+------------------------------------------------------------------------------------
+Changes made in - thread.cc, thread.h, exception.cc
+Changes - We added an unsigned integer NumInstr in the NachOSThread constructor.
+We also added its getter method in the NachOSThread class along with a method to
+increment it. We initialise it with 0 and increment it whenever OneInstruction
+method is called in Machine::Run(). We return the value of the getter method as the
+return value of this syscall.
+
+------------------------------------------------------------------------------------
 syscall_Time
 ------------------------------------------------------------------------------------
 Changes made in - exception.cc 
