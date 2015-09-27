@@ -57,6 +57,7 @@ NachOSThread::NachOSThread(char* threadName)
     parentThread = NULL;
     aliveChildProcesses = new List;
     exitedChildProcesses = new List;
+    waitPid = 0;
 #ifdef USER_PROGRAM
     space = NULL;
 #endif

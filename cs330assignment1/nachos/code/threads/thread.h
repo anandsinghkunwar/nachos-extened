@@ -112,6 +112,8 @@ class NachOSThread {
     void exitAppend(void *item, int key){ exitedChildProcesses->SortedInsert(item, key); }
     void alertChildren();        // Alert child processes if parent dies
     void removeChild(int key) {aliveChildProcesses->RemoveElement(key); }         // Remove a dead child from aliveChildProcesses
+    int getWaitPid(){ return waitPid; }
+    void setWaitPid(int key){ waitPid = key; }
 
   private:
     // some of the private data for this class is listed above
@@ -126,7 +128,7 @@ class NachOSThread {
     					// Allocate a stack for thread.
 					// Used internally by ThreadFork()
     List *exitedChildProcesses, *aliveChildProcesses;
-    int pid, ppid;			// My pid and my parent's pid
+    int pid, ppid, waitPid;			// My pid, my parent's pid and waiting child's pid
     unsigned int NumInstr; 		// Number of executed instructions
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 

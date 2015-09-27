@@ -308,7 +308,10 @@ ExceptionHandler(ExceptionType which)
        if (parentThread != NULL) {
           parentThread->exitAppend(status, currentThread->getPid());
           parentThread->removeChild(currentThread->getPid());
-          scheduler->ReadyToRun(parentThread);
+          if(parentThread->getWaitPid() == currentThread->getPid()){
+             parentThread->setWaitPid(0);
+             scheduler->ReadyToRun(parentThread);
+          }
        }
        currentThread->alertChildren();
        if (numThreads > 1)
