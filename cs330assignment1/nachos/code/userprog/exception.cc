@@ -302,27 +302,19 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(2, childThread->getPid()); //Set the parent return val to child's pid
     }
     else if ((which == SyscallException) && (type == syscall_Exit)) {
-       (void) interrupt->SetLevel(IntOff);
        status[0] = machine->ReadRegister(4);
        machine->WriteRegister(2, status[0]);
        parentThread = currentThread->parentThread;
-       if(parentThread != NULL){
+       if (parentThread != NULL) {
           parentThread->exitAppend(status, currentThread->getPid());
           parentThread->removeChild(currentThread->getPid());
        }
        currentThread->alertChildren();
-       threadToBeDestroyed = currentThread;
-       numThreads--;
-       printf("Num Threads %d\n", numThreads);
-       if ((nextThread = scheduler->FindNextToRun()) != NULL) {
-          currentThread->setStatus(BLOCKED);
-          scheduler->Run(nextThread);
-       }
-       else if (numThreads != 0)
+       if (numThreads > 1)
        {
-          currentThread->PutThreadToSleep();
+          currentThread->FinishThread();
        }
-       else if (numThreads == 0)
+       else if (numThreads == 1)
        {
           interrupt->Halt();
        }
