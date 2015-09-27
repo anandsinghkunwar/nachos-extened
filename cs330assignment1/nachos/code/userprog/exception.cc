@@ -88,7 +88,7 @@ void
 ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
-    int memval, vaddr, printval, tempval, exp, val;
+    int memval, vaddr, printval, tempval, exp, val, status[1];
     int *exitStatus;
     AddrSpace *space;
     char filename[64];
@@ -303,11 +303,11 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Exit)) {
        (void) interrupt->SetLevel(IntOff);
-       val = machine->ReadRegister(4);
-       machine->WriteRegister(2, val);
+       status[0] = machine->ReadRegister(4);
+       machine->WriteRegister(2, status[0]);
        parentThread = currentThread->parentThread;
        if(parentThread != NULL){
-	  parentThread->exitAppend(&val, currentThread->getPid());
+	  parentThread->exitAppend(status, currentThread->getPid());
        }
        currentThread->alertChildren();
        threadToBeDestroyed = currentThread;
