@@ -2,19 +2,27 @@
 
 int main()
 {
-   int a = system_Fork();
-   if (a == 0)
+   int b,a = system_Fork();
+   if (a!=0)
    {
-      system_PrintString("Hellolong");
-      system_PrintChar('\n');
+      b = system_Fork();
+      if(b==0) {
+         system_Sleep(1000);
+         system_PrintString("BBBBBBBB");
+         system_PrintChar('\n');
+      }
+      else {
+         system_Join(a);
+         system_PrintString("CCCCCCCC");
+         system_PrintChar('\n');
+      }
    }
-
-   else
+   if(a==0)
    {
-      system_PrintInt(a);
+      system_PrintString("AAAAAAAA");
       system_PrintChar('\n');
    }
    
-   system_PrintChar('X');
+   
    return 0;
 }
