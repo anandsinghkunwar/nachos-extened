@@ -111,6 +111,7 @@ class NachOSThread {
     void aliveAppend(void *item, int key){ aliveChildProcesses->SortedInsert(item, key); }
     void exitAppend(void *item, int key){ exitedChildProcesses->SortedInsert(item, key); }
     void alertChildren();        // Alert child processes if parent dies
+    void removeChild(int key) {aliveChildProcesses->RemoveElement(key); }         // Remove a dead child from aliveChildProcesses
 
   private:
     // some of the private data for this class is listed above

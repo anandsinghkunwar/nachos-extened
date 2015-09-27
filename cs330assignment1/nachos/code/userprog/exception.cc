@@ -307,11 +307,13 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(2, status[0]);
        parentThread = currentThread->parentThread;
        if(parentThread != NULL){
-	  parentThread->exitAppend(status, currentThread->getPid());
+          parentThread->exitAppend(status, currentThread->getPid());
+          parentThread->removeChild(currentThread->getPid());
        }
        currentThread->alertChildren();
        threadToBeDestroyed = currentThread;
        numThreads--;
+       printf("Num Threads %d\n", numThreads);
        if ((nextThread = scheduler->FindNextToRun()) != NULL) {
           currentThread->setStatus(BLOCKED);
           scheduler->Run(nextThread);
@@ -320,6 +322,10 @@ ExceptionHandler(ExceptionType which)
        {
           currentThread->PutThreadToSleep();
        }
+       else if (numThreads == 0)
+       {
+          interrupt->Halt();
+       }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
@@ -327,8 +333,10 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Join)) {
        val = machine->ReadRegister(4);
-       if(currentThread->aliveProcesses(val) != NULL)
-       currentThread->PutThreadToSleep();
+       if(currentThread->aliveProcesses(val) != NULL) {
+          (void) interrupt->SetLevel(IntOff);
+          currentThread->PutThreadToSleep();
+       }
        exitStatus = (int *) currentThread->exitedProcesses(val);
        if(exitStatus != NULL)
           machine->WriteRegister(2,*exitStatus);
