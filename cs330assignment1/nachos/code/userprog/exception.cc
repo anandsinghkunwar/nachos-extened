@@ -304,20 +304,20 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == syscall_Exit)) {
        status[0] = machine->ReadRegister(4);
        machine->WriteRegister(2, status[0]);
-       if (numThreads == 1)
-	 interrupt->Halt();
-       else if (numThreads > 1) {
+       if (numThreads == 1)                     // This is the only thread
+          interrupt->Halt();
+       else if (numThreads > 1) {               // There are more alive threads
           parentThread = currentThread->parentThread;
-	 if (parentThread != NULL) {
-	   parentThread->exitAppend(status, currentThread->getPid());
-	   parentThread->removeChild(currentThread->getPid());
-	   if(parentThread->getWaitPid() == currentThread->getPid()){
-	     parentThread->setWaitPid(0);
-	     scheduler->ReadyToRun(parentThread);
-	   }
-	 }
-	 currentThread->alertChildren();
-	 currentThread->FinishThread();
+          if (parentThread != NULL) {
+             parentThread->exitAppend(status, currentThread->getPid());   // Add exit code to parent's exited list
+             parentThread->removeChild(currentThread->getPid());          // Remove thread from parent's alive list
+             if (parentThread->getWaitPid() == currentThread->getPid()) { // If parent is waiting for me
+                parentThread->setWaitPid(0);
+                scheduler->ReadyToRun(parentThread);                      // Wake parent up
+             }
+          }
+       currentThread->alertChildren();          // Alert children that their parent is dead
+       currentThread->FinishThread();           // Destroy the thread
        }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
@@ -326,23 +326,23 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Join)) {
        val = machine->ReadRegister(4);
-       currentThread->setWaitPid(val);
-       if(currentThread->aliveProcesses(val) != NULL) {
+       currentThread->setWaitPid(val);          // I am waiting for pid = val
+       if (currentThread->aliveProcesses(val) != NULL) {  // The child is alive
           (void) interrupt->SetLevel(IntOff);
-          currentThread->PutThreadToSleep();
+          currentThread->PutThreadToSleep();              // Go to sleep indefinitely (until child wakes it up)
        }
        exitStatus = (int *) currentThread->exitedProcesses(val);
-       if(exitStatus != NULL)
-          machine->WriteRegister(2,*exitStatus);
+       if(exitStatus != NULL)                   // Child has already exited
+          machine->WriteRegister(2,*exitStatus);  // Simply return the exit status of the exited child
        else
-      	 machine->WriteRegister(2,-1);
+          machine->WriteRegister(2,-1);         // No legitimate child with pid = val
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
     else {
-	printf("Unexpected user mode exception %d %d\n", which, type);
-	ASSERT(FALSE);
+       printf("Unexpected user mode exception %d %d\n", which, type);
+       ASSERT(FALSE);
     }
 }

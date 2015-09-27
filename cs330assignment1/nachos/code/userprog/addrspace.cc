@@ -109,7 +109,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     
     if (executable == NULL) {       // Allocating space without an executable - must be fork
        parentStartAddress = currentThread->space->getStartAddress();
-       for (i = 0; i < numPages * PageSize; i++) {
+       for (i = 0; i < numPages * PageSize; i++) {        // Copying parent's address space
           *(startAddress + i) = *(parentStartAddress + i);
        }
     } 

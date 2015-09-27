@@ -105,7 +105,7 @@ class NachOSThread {
     void resetPpid() { ppid = 0; }      // Set ppid to 0
     unsigned int getNumInstr(){return NumInstr;}
     void incrNumInstr(){NumInstr++;} 
-    void* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key DNE else return 1
+    void* aliveProcesses(int key){ return aliveChildProcesses->GetValue(key); }	//Return NULL if key does not exist, else return the thread
     void* exitedProcesses(int key){ return exitedChildProcesses->GetValue(key); }	//Return exit status if key exists else return NULL
     NachOSThread *parentThread;
     void aliveAppend(void *item, int key){ aliveChildProcesses->SortedInsert(item, key); }
