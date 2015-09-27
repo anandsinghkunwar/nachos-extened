@@ -289,7 +289,7 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Fork)) {
        childThread = new NachOSThread("forked thread");
-       currentThread->aliveAppend(NULL,childThread->getPid());
+       currentThread->aliveAppend(childThread,childThread->getPid());
        space = new AddrSpace(NULL);       // When NULL is passed to the constructor, it copies the parent's space
        childThread->space = space;
        // Advance program counters.
@@ -309,6 +309,7 @@ ExceptionHandler(ExceptionType which)
        if(parentThread != NULL){
 	  parentThread->exitAppend(&val, currentThread->getPid());
        }
+       currentThread->alertChildren();
        threadToBeDestroyed = currentThread;
        numThreads--;
        if ((nextThread = scheduler->FindNextToRun()) != NULL) {

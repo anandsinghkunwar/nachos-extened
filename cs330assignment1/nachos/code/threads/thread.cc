@@ -24,10 +24,16 @@
 					// execution stack, for detecting 
 					// stack overflows
 
-void alertChild(NachOSThread *childThread)
+void alertChild(int arg)
 {
+   NachOSThread *childThread = (NachOSThread *) arg;
    childThread->parentThread = NULL;
    childThread->resetPpid();
+}
+
+void
+NachOSThread::alertChildren() {
+   aliveChildProcesses->Mapcar(alertChild);
 }
 
 //----------------------------------------------------------------------

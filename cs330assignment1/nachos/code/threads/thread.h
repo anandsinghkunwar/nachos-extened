@@ -110,7 +110,7 @@ class NachOSThread {
     NachOSThread *parentThread;
     void aliveAppend(void *item, int key){ aliveChildProcesses->SortedInsert(item, key); }
     void exitAppend(void *item, int key){ exitedChildProcesses->SortedInsert(item, key); }
-    void alertChildren() { activeChildProcesses->Mapcar(alertChild); }        // Alert child processes if parent dies
+    void alertChildren();        // Alert child processes if parent dies
 
   private:
     // some of the private data for this class is listed above
