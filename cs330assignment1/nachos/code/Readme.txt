@@ -121,7 +121,18 @@ exiting thread calls FinishThread.
 syscall_Join
 ------------------------------------------------------------------------------------
 Changes made in - list.h, list.cc, thread.cc, thread.h, exception.cc
-Changes - 
+Changes - We added an integer waitPid, which is initialised with 0, along with its 
+setter & getter methods in the NachOSThread constructor to indicate that the thread
+in question is waiting for the thread with pid equal to waitPid. We also added a 
+GetValue method in the List class to return the item field corresponding to the key
+passed as its argument. When the system call handler is invoked, we set the 
+currentThread's waitPid to the passed argument. Then we search in the current
+thread's activeChildProcesses list for the joining thread using the GetValue method.
+If it exists, we put the current thread to sleep (to be woken up by the child it is
+waiting for) otherwise we scan its exitedChildProcesses list. If we find the 
+required thread, we return its exit status which is stored in the item field of 
+the list. If we don't find the thread we return -1 as this corresponds to the case 
+when a process has called join on pid that doesn't belong to its children (if any).
 
 ------------------------------------------------------------------------------------
 syscall_Fork
