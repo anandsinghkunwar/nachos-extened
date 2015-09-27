@@ -105,3 +105,26 @@ waitPid variable, and if it matches with the PID of the exiting thread, we reset
 waitPid variable and wake it up. Then, we go to the list of the children of the 
 exiting thread, and set their parent thread pointer to NULL and PPID to 0. Then, the
 exiting thread calls FinishThread.
+
+------------------------------------------------------------------------------------
+syscall_Fork
+------------------------------------------------------------------------------------
+Changes made in - exception.cc, addrspace.cc, addrspace.h, thread.h, thread.cc
+Changes - We modified the AddrSpace constructor to take care of the case when we are
+creating an address space for a forked thread. In this case, the constructor takes
+NULL as the executable name. The size of the address space is set to the size of the
+parent's address space and then the parent's address space is copied byte-by-byte to
+the newly allocated space.
+In the system call, we create a new thread object called childThread and append it 
+to the current thread's aliveChildProcesses list.Then we construct an address space
+for it according to the above description, and attach that space to the thread. 
+We advanced the program counters and then copy this context to the child's context.
+Then we set the return value register in the parent thread and the child thread to 
+child's PID and 0 respectively. Then we call the ThreadFork method on the child 
+thread, which calls the ThreadStackAllocate method with the function ChildInitialize
+as the argument. This ChildInitialize function is defined in exception.cc, which 
+mimics what the scheduler::Run method does after the context switch occurs and the
+child thread is scheduled. Following this, we call the machine->Run method to run 
+this child thread in the current context. After the ThreadStackAllocate function 
+returns, the child thread is put on the ready queue automatically, since we 
+originally called ThreadFork.
