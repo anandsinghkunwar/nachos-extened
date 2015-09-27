@@ -253,7 +253,7 @@ List::SortedRemove(int *keyPtr)
 void
 List::RemoveElement (int key)
 {
-    ListElement *present, *previous = NULL;
+    ListElement *previous = NULL;
     
     for (ListElement *ptr = first; ptr != NULL; ptr = ptr->next) {
         if(ptr->key == key)
