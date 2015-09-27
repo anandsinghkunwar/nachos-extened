@@ -329,6 +329,7 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_Join)) {
        val = machine->ReadRegister(4);
+       currentThread->setWaitPid(val);
        if(currentThread->aliveProcesses(val) != NULL) {
           (void) interrupt->SetLevel(IntOff);
           currentThread->PutThreadToSleep();
