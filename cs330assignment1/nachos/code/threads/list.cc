@@ -273,5 +273,4 @@ List::RemoveElement (int key)
         previous = ptr;
     }
 
-    if (IsEmpty())
 }
