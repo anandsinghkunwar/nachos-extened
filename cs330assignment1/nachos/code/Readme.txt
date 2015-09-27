@@ -46,7 +46,8 @@ Changes - We added an unsigned integer NumInstr in the NachOSThread constructor.
 We also added its getter method in the NachOSThread class along with a method to
 increment it. We initialise it with 0 and increment it whenever OneInstruction
 method is called in Machine::Run(). We return the value of the getter method as the
-return value of this syscall.
+return value of this syscall. Note that this also includes some instructions of the
+GetNumInstr syscall itself.
 
 ------------------------------------------------------------------------------------
 syscall_Time
