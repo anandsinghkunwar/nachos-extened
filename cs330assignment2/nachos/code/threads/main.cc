@@ -60,6 +60,7 @@ extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
 extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
+extern void CreateAndEnqueue(char *file, int priority);
 
 //----------------------------------------------------------------------
 // main
@@ -115,12 +116,20 @@ main(int argc, char **argv)
             int priority;
             argCount = 2;
             while (fscanf(fp,"%s", filename)>0) {
-                if(fscanf(fp,"%d",&priority)>0)
-                    callfunc(filename,priority);
+                if (fscanf(fp,"%d",&priority)>0)
+                    CreateAndEnqueue(filename, priority);
                 else
-                    callfunc(filename);
+                    CreateAndEnqueue(filename, 100);
             }
             fclose(fp);
+            int i, exitcode = 0;
+            printf("[pid %d]: Exit called. Code: %d\n", currentThread->GetPID(), exitcode);
+            exitThreadArray[currentThread->GetPID()] = true;
+            // Find out if all threads have called exit
+            for (i=0; i<thread_index; i++) {
+               if (!exitThreadArray[i]) break;
+            }
+            currentThread->Exit(i==thread_index, exitcode);
         }
 #endif // USER_PROGRAM
 #ifdef FILESYS

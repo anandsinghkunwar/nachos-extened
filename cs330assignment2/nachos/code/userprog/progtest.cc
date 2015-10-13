@@ -82,3 +82,29 @@ ConsoleTest (char *in, char *out)
 	if (ch == 'q') return;  // if q, quit
     }
 }
+
+//----------------------------------------------------------------------
+// CreateAndEnqueue
+//    Create a new NachOSThread for the given executable, set its
+//    priority and enqueue it in the ready queue.
+//----------------------------------------------------------------------
+void
+CreateAndEnqueue (char *filename, int priority)
+{
+    OpenFile *executable = fileSystem->Open(filename);
+    AddrSpace *space;
+    NachOSThread *newThread;
+
+    if (executable == NULL) {
+	printf("Unable to open file %s\n", filename);
+	return;
+    }
+    newThread = new NachOSThread("created thread");
+    space = new AddrSpace(executable);
+    newThread->space = space;
+
+    delete executable;			// close file
+    space->InitRegisters();
+    newThread->SaveUserState();
+    newThread->Schedule();
+}
