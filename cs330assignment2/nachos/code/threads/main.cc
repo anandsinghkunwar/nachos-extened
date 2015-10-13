@@ -108,7 +108,20 @@ main(int argc, char **argv)
 	    interrupt->Halt();		// once we start the console, then 
 					// Nachos will loop forever waiting 
 					// for console input
-	}
+		}
+        else if (!strcmp(*argv, "-F")) {
+            FILE *fp = fopen(*(argv+1),"r");
+            char filename[1024];
+            int priority;
+            argCount = 2;
+            while (fscanf(fp,"%s", filename)>0) {
+                if(fscanf(fp,"%d",&priority)>0)
+                    callfunc(filename,priority);
+                else
+                    callfunc(filename);
+            }
+            fclose(fp);
+        }
 #endif // USER_PROGRAM
 #ifdef FILESYS
 	if (!strcmp(*argv, "-cp")) { 		// copy from UNIX to Nachos
