@@ -14,6 +14,7 @@
 #include "addrspace.h"
 #include "synch.h"
 
+extern void ForkStartFunction(int dummy);
 //----------------------------------------------------------------------
 // StartProcess
 // 	Run a user program.  Open the executable, load it into
@@ -106,5 +107,6 @@ CreateAndEnqueue (char *filename, int priority)
     delete executable;			// close file
     space->InitRegisters();
     newThread->SaveUserState();
+    newThread->ThreadStackAllocate(ForkStartFunction, 0);
     newThread->Schedule();
 }
