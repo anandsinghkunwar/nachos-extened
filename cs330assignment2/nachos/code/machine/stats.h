@@ -39,6 +39,18 @@ class Statistics {
     Statistics(); 		// initialize everything to zero
 
     void Print();		// print collected statistics
+    int startTime;      // start time of the simulation
+    int endTime;        // end time of the simulation
+    int totalBusyTime;  // Total time the CPU was busy
+    int minBurst;       // Minimum CPU burst length
+    int maxBurst;       // Maximum CPU burst length
+    int totalBurst;     // Sum of all CPU burst lengths
+    int nonZeroBursts;  // Number of non zero CPU bursts
+    int avgWaitTime;    // Average waiting time in the ready queue
+    int minCompletionTime;  // Minimum thread completion time (except main thread)
+    int maxCompletionTime;  // Maximum thread completion time (except main thread)
+    int avgCompletionTime;  // Average thread completion time (except main thread)
+    int completionTimeVariance; // Variance of thread completion times (except main thread)
 };
 
 // Constants used to reflect the relative time an operation would

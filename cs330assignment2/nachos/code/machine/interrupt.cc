@@ -241,6 +241,7 @@ void
 Interrupt::Halt()
 {
     printf("Machine halting!\n\n");
+    stats->endTime = stats->totalTicks;
     stats->Print();
     Cleanup();     // Never returns.
 }

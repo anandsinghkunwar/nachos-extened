@@ -22,6 +22,10 @@ Statistics::Statistics()
     numDiskReads = numDiskWrites = 0;
     numConsoleCharsRead = numConsoleCharsWritten = 0;
     numPageFaults = numPacketsSent = numPacketsRecvd = 0;
+    startTime = endTime = totalBusyTime = 0;
+    minBurst = maxBurst = totalBurst = nonZeroBursts = 0;
+    avgWaitTime = minCompletionTime = maxCompletionTime = 0;
+    avgCompletionTime = completionTimeVariance = 0;
 }
 
 //----------------------------------------------------------------------
@@ -41,4 +45,13 @@ Statistics::Print()
     printf("Paging: faults %d\n", numPageFaults);
     printf("Network I/O: packets received %d, sent %d\n", numPacketsRecvd, 
 	numPacketsSent);
+    printf("Total CPU busy time: %d\n", totalBusyTime);
+    printf("Total execution time: %d, CPU Utilization: %f\n", endTime - startTime,
+   (totalBurst*1.0)/(endTime - startTime));
+    printf("CPU burst lengths: minimum %d, maximum %d, average %f\n", minBurst,
+   maxBurst, totalBurst*1.0/nonZeroBursts);
+    printf("Number of non zero bursts: %d\n", nonZeroBursts);
+    printf("Average waiting time in the ready queue: %d\n", avgWaitTime);
+    printf("Thread Completion time: minimum %d, maximum %d, average %d, variance %d\n",
+   minCompletionTime, maxCompletionTime, avgCompletionTime, completionTimeVariance);
 }

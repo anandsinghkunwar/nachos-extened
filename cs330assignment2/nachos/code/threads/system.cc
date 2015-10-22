@@ -168,7 +168,7 @@ Initialize(int argc, char **argv)
     // object to save its state. 
     currentThread = new NachOSThread("main");		
     currentThread->setStatus(RUNNING);
-
+    stats->startTime = stats->totalTicks;
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
     
