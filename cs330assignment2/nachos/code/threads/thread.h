@@ -168,6 +168,7 @@ class NachOSThread {
     void RestoreUserState();		// restore user-level register state
 
     AddrSpace *space;			// User code this thread is running.
+    int priority;             // Priority of the thread
 #endif
 };
 
