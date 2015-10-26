@@ -10,6 +10,7 @@
 #include "copyright.h"
 #include "utility.h"
 #include "stats.h"
+#include "system.h"
 
 //----------------------------------------------------------------------
 // Statistics::Statistics
@@ -51,7 +52,40 @@ Statistics::Print()
     printf("CPU burst lengths: minimum %d, maximum %d, average %f\n", minBurst,
    maxBurst, totalBurst*1.0/nonZeroBursts);
     printf("Number of non zero bursts: %d\n", nonZeroBursts);
-    printf("Average waiting time in the ready queue: %d\n", avgWaitTime);
-    printf("Thread Completion time: minimum %d, maximum %d, average %d, variance %d\n",
+    GetStats();
+    printf("Average waiting time in the ready queue: %f\n", avgWaitTime);
+    printf("Thread Completion time: minimum %d, maximum %d, average %f, variance %f\n",
    minCompletionTime, maxCompletionTime, avgCompletionTime, completionTimeVariance);
+}
+
+//----------------------------------------------------------------------
+// Statistics::GetStats
+//    Compute average waiting time, max, min, average completion time
+// and variance of completion time.
+//----------------------------------------------------------------------
+
+void
+Statistics::GetStats()
+{
+   int i, temp;
+   for (i = 0; i < thread_index; i++)
+      avgWaitTime += threadWaitTime[i];
+   avgWaitTime = avgWaitTime/thread_index;
+
+   for (i = 1; i < thread_index; i++) {
+      temp = threadFinishTime[i] - threadStartTime[i];
+      if ((minCompletionTime == 0 || temp < minCompletionTime))
+         minCompletionTime = temp;
+      if ((maxCompletionTime == 0 || temp > maxCompletionTime))
+         maxCompletionTime = temp;
+      avgCompletionTime += temp;
+   }
+   avgCompletionTime = avgCompletionTime/(thread_index - 1);
+
+   for (i = 1; i < thread_index; i++)
+   {
+      temp = threadFinishTime[i] - threadStartTime[i];
+      completionTimeVariance += (temp - avgCompletionTime)*(temp - avgCompletionTime);
+   }
+   completionTimeVariance = completionTimeVariance/(thread_index - 1);
 }
