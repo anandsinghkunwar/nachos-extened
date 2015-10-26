@@ -41,10 +41,9 @@ class Statistics {
     void Print();		// print collected statistics
     int startTime;      // start time of the simulation
     int endTime;        // end time of the simulation
-    int totalBusyTime;  // Total time the CPU was busy
     int minBurst;       // Minimum CPU burst length
     int maxBurst;       // Maximum CPU burst length
-    int totalBurst;     // Sum of all CPU burst lengths
+    int totalBurst;     // Sum of all CPU burst lengths = total CPU busy time
     int nonZeroBursts;  // Number of non zero CPU bursts
     int avgWaitTime;    // Average waiting time in the ready queue
     int minCompletionTime;  // Minimum thread completion time (except main thread)

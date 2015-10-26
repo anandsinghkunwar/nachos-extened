@@ -107,7 +107,7 @@ class NachOSThread {
    
     void CheckOverflow();   			// Check if thread has 
 						// overflowed its stack
-    void setStatus(ThreadStatus st) { status = st; }
+    void setStatus(ThreadStatus st);
     char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
 
@@ -155,6 +155,7 @@ class NachOSThread {
     int waitchild_id;                   // Child I am waiting on (as a result of a Join call)
 
     unsigned instructionCount;		// Keeps track of the instruction count executed by this thread
+    int waitStartTime;              // Time at which I started waiting in the ready queue
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 

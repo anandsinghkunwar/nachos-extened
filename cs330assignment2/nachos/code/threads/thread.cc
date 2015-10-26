@@ -220,6 +220,17 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
     NachOSThread *nextThread;
 
     status = BLOCKED;
+    burstLength = stats->totalTicks - burstStartTime;   // CPU burst ends when this thread calls exit
+    if (burstLength > 0) {
+       stats->nonZeroBursts++;
+       stats->totalBurst += burstLength;
+       if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
+          stats->minBurst = burstLength;
+       if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
+          stats->maxBurst = burstLength;
+    }
+
+    threadFinishTime[pid] = stats->totalTicks;        // Thread called exit - thread has completed
 
     // Set exit code in parent's structure provided the parent hasn't exited
     if (ppid != -1) {
@@ -274,6 +285,18 @@ NachOSThread::YieldCPU ()
 	scheduler->ReadyToRun(this);
 	scheduler->Run(nextThread);
     }
+    else {
+       burstLength = stats->totalTicks - burstStartTime;   // CPU burst ends when thread yields
+       if (burstLength > 0) {
+          stats->nonZeroBursts++;
+          stats->totalBurst += burstLength;
+          if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
+             stats->minBurst = burstLength;
+          if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
+             stats->maxBurst = burstLength;
+       }
+       burstStartTime = stats->totalTicks;               // A new burst starts
+    }
     (void) interrupt->SetLevel(oldLevel);
 }
 
@@ -307,6 +330,16 @@ NachOSThread::PutThreadToSleep ()
     DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
+    burstLength = stats->totalTicks - burstStartTime;   // CPU burst ends when thread sleeps
+    if (burstLength > 0) {
+       stats->nonZeroBursts++;
+       stats->totalBurst += burstLength;
+       if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
+          stats->minBurst = burstLength;
+       if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
+          stats->maxBurst = burstLength;
+    }
+
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
 	interrupt->Idle();	// no one to run, wait for an interrupt
         
@@ -553,5 +586,52 @@ unsigned
 NachOSThread::GetInstructionCount (void)
 {
    return instructionCount;
+}
+
+//----------------------------------------------------------------------
+// NachOSThread::setStatus
+//      Take care of the statistics and set the new thread status
+//----------------------------------------------------------------------
+
+void
+NachOSThread::setStatus (ThreadStatus st)
+{
+   if (status == JUST_CREATED) {                 // Transition JUST_CREATED->Anything
+      threadStartTime[pid] = stats->totalTicks;  // Thread has started for the first time
+   }
+   else if ((status == RUNNING) && (st == READY)) {   // Transition RUNNING->READY - end of CPU burst
+         burstLength = stats->totalTicks - burstStartTime;
+         if (burstLength > 0) {
+            stats->nonZeroBursts++;
+            stats->totalBurst += burstLength;
+            if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
+               stats->minBurst = burstLength;
+            if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
+               stats->maxBurst = burstLength;
+         }
+         waitStartTime = stats->totalTicks;     // Starting time of wait in ready queue
+   }
+   else if ((status == RUNNING) && (st == BLOCKED)) { // Transition RUNNING->BLOCKED - end of CPU burst
+         burstLength = stats->totalTicks - burstStartTime;
+         if (burstLength > 0) {
+            stats->nonZeroBursts++;
+            stats->totalBurst += burstLength;
+            if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
+               stats->minBurst = burstLength;
+            if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
+               stats->maxBurst = burstLength;
+         }
+   }
+   else if ((status == READY) && (st == RUNNING)) {  // Transition READY->RUNNING - A CPU burst is starting
+      burstStartTime = stats->totalTicks;       // Starting time of this CPU burst
+      threadWaitTime[pid] += stats->totalTicks - waitStartTime; // Thread is no longer waiting in the ready queue
+   }
+   else if ((status == BLOCKED) && (st == RUNNING)) { // Transition BLOCKED->RUNNING - A CPU burst is starting
+      burstStartTime = stats->totalTicks;       // Starting time of this CPU burst
+   }
+   else if ((status == BLOCKED) && (st == READY)) { // Transition BLOCKED->READY
+      waitStartTime = stats->totalTicks;        // Starting time of wait in ready queue
+   }
+   status = st;
 }
 #endif
