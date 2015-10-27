@@ -103,7 +103,7 @@ CreateAndEnqueue (char *filename, int priority)
     newThread = new NachOSThread("created thread");
     space = new AddrSpace(executable);
     newThread->space = space;
-    newThread->priority += priority;
+    newThread->initialPriority += priority;
 
     delete executable;			// close file
     space->InitRegisters();

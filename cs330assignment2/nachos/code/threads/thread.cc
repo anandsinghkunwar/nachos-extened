@@ -282,7 +282,14 @@ NachOSThread::YieldCPU ()
     ASSERT(this == currentThread);
     
     DEBUG('t', "Yielding thread \"%s\"\n", getName());
-    
+   
+    if (scheduler->policy == UNIX_SCHED) {    // 
+       scheduler->ReadyToRun(this);
+       updatePriorities();
+       nextThread = scheduler->FindNextToRun();
+       scheduler->Run(nextThread);
+    }
+    else {
     nextThread = scheduler->FindNextToRun();
     if (nextThread != NULL) {
 	scheduler->ReadyToRun(this);

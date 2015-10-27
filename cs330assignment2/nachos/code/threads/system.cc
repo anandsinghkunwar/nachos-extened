@@ -12,6 +12,7 @@
 // These are all initialized and de-allocated by this file.
 
 NachOSThread *currentThread;			// the thread we are running now
+int *currentThreadPriority;         // priority of the current thread
 NachOSThread *threadToBeDestroyed;  		// the thread that just finished
 Scheduler *scheduler;			// the ready list
 Interrupt *interrupt;			// interrupt status
@@ -88,7 +89,7 @@ TimerInterruptHandler(int dummy)
                 interrupt->YieldOnReturn();
         }
         else if (scheduler->policy == UNIX_SCHED) {
-
+            if ((stats->totalTicks - burstStartTime) >= scheduler->quantum)
             interrupt->YieldOnReturn();
         }
     }

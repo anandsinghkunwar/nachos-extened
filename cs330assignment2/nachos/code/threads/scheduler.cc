@@ -104,6 +104,9 @@ Scheduler::FindNextToRun ()
                 readyList->Append((void *)thread);
         }
     }
+    else if (policy == UNIX_SCHED) {
+       return (NachOSThread *)readyList->SortedRemove(currentThreadPriority);
+    }
     return (NachOSThread *)readyList->Remove();
 }
 
