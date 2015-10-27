@@ -135,7 +135,7 @@ class NachOSThread {
 
     void IncInstructionCount();
     unsigned GetInstructionCount();
-
+    float EstimatedBurst,LastBurst;
   private:
     // some of the private data for this class is listed above
     

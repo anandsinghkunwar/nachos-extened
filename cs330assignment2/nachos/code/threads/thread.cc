@@ -59,7 +59,8 @@ NachOSThread::NachOSThread(char* threadName)
     waitchild_id = -1;
 
     for (i=0; i<MAX_CHILD_COUNT; i++) exitedChild[i] = false;
-
+    EstimatedBurst = 10;
+    LastBurst = 0;
     instructionCount = 0;
 }
 

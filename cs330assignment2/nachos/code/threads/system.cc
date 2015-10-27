@@ -83,7 +83,8 @@ TimerInterruptHandler(int dummy)
            delete ptr;
         }
         //printf("[%d] Timer interrupt.\n", stats->totalTicks);
-        //interrupt->YieldOnReturn();
+        if(scheduler->policy == ROUND_ROBIN || scheduler->policy == UNIX_SCHED)        
+            interrupt->YieldOnReturn();
     }
 }
 
