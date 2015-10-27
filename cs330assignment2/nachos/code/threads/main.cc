@@ -113,8 +113,53 @@ main(int argc, char **argv)
         else if (!strcmp(*argv, "-F")) {
             FILE *fp = fopen(*(argv+1),"r");
             char filename[1024];
-            int priority;
+            int priority, schedulerPolicy;
             argCount = 2;
+            if(fscanf(fp,"%d",&schedulerPolicy)>0) {
+                switch(schedulerPolicy) {
+                    case 1:
+                            scheduler->policy = 1;
+                            break;
+                    case 2:
+                            scheduler->policy = 2;
+                            break;
+                    case 3:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 3;
+                            break;
+                    case 4:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 3;
+                            break;
+                    case 5:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 3;
+                            break;
+                    case 6:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 3;
+                            break;
+                    case 7:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 4;
+                            break;
+                    case 8:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 4;
+                            break;
+                    case 9:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 4;
+                            break;
+                    case 10:
+                            scheduler->quantum = 20;
+                            scheduler->policy = 4;
+                            break;
+                    default:
+                            scheduler->policy = 1;
+                }
+            }
+
             while (fscanf(fp,"%s", filename)>0) {
                 if (fscanf(fp,"%d",&priority)>0)
                     CreateAndEnqueue(filename, priority);

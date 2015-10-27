@@ -19,6 +19,7 @@
 
 class Scheduler {
   public:
+    unsigned int policy, quantum;
     Scheduler();			// Initialize list of ready threads 
     ~Scheduler();			// De-allocate ready list
 
