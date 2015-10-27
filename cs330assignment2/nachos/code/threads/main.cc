@@ -113,7 +113,7 @@ main(int argc, char **argv)
         else if (!strcmp(*argv, "-F")) {
             FILE *fp = fopen(*(argv+1),"r");
             char filename[1024];
-            int priority, schedulerPolicy;
+            int priority, schedulerPolicy, A=130;
             argCount = 2;
             if(fscanf(fp,"%d",&schedulerPolicy)>0) {
                 switch(schedulerPolicy) {
@@ -124,35 +124,35 @@ main(int argc, char **argv)
                             scheduler->policy = NON_PREEMPT_SJF;
                             break;
                     case 3:
-                            scheduler->quantum = 20;
-                            scheduler->policy = 3;
+                            scheduler->quantum = A/4;
+                            scheduler->policy = ROUND_ROBIN;
                             break;
                     case 4:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = A/2;
                             scheduler->policy = ROUND_ROBIN;
                             break;
                     case 5:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = (3*A)/4;
                             scheduler->policy = ROUND_ROBIN;
                             break;
                     case 6:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = 40;
                             scheduler->policy = ROUND_ROBIN;
                             break;
                     case 7:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = A/4;
                             scheduler->policy = UNIX_SCHED;
                             break;
                     case 8:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = A/2;
                             scheduler->policy = UNIX_SCHED;
                             break;
                     case 9:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = (3*A)/4;
                             scheduler->policy = UNIX_SCHED;
                             break;
                     case 10:
-                            scheduler->quantum = 20;
+                            scheduler->quantum = 40;
                             scheduler->policy = UNIX_SCHED;
                             break;
                     default:
