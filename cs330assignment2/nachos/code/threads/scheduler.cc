@@ -70,7 +70,7 @@ Scheduler::ReadyToRun (NachOSThread *thread)
 NachOSThread *
 Scheduler::FindNextToRun ()
 {
-    if (policy == NACHOS_DEFAULT)
+    if (policy == NACHOS_DEFAULT || policy == ROUND_ROBIN)
         return (NachOSThread *)readyList->Remove();
     else if (policy == NON_PREEMPT_SJF) {
         int firstPid, temp, nextPid;
