@@ -73,7 +73,7 @@ Statistics::GetStats()
    avgWaitTime = avgWaitTime/thread_index;
 
    for (i = 1; i < thread_index; i++) {
-      temp = threadFinishTime[i] - threadStartTime[i];
+      temp = threadCompletionTime[i];
       if ((minCompletionTime == 0 || temp < minCompletionTime))
          minCompletionTime = temp;
       if ((maxCompletionTime == 0 || temp > maxCompletionTime))
@@ -84,7 +84,7 @@ Statistics::GetStats()
 
    for (i = 1; i < thread_index; i++)
    {
-      temp = threadFinishTime[i] - threadStartTime[i];
+      temp = threadCompletionTime[i];
       completionTimeVariance += (temp - avgCompletionTime)*(temp - avgCompletionTime);
    }
    completionTimeVariance = completionTimeVariance/(thread_index - 1);

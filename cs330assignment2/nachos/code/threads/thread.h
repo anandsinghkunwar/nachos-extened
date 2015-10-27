@@ -135,7 +135,8 @@ class NachOSThread {
 
     void IncInstructionCount();
     unsigned GetInstructionCount();
-    float EstimatedBurst,LastBurst;
+    float EstimatedBurst, LastBurst;
+
   private:
     // some of the private data for this class is listed above
     
@@ -167,9 +168,10 @@ class NachOSThread {
   public:
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
+    void DecayCPU() { LastBurst = LastBurst/2; }  // Decay the CPU usage of the thread
 
     AddrSpace *space;			// User code this thread is running.
-    int priority;             // Priority of the thread
+    int initialPriority;             // Initial priority of the thread
 #endif
 };
 

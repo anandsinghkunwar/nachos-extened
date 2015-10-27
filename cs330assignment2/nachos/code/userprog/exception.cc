@@ -170,6 +170,7 @@ ExceptionHandler(ExceptionType which)
 
        child = new NachOSThread("Forked thread");
        child->space = new AddrSpace (currentThread->space);  // Duplicates the address space
+       child->initialPriority = currentThread->initialPriority; // Inherit parent's nice value
        child->SaveUserState ();                               // Duplicate the register set
        child->ResetReturnValue ();                           // Sets the return register to zero
        child->ThreadStackAllocate (ForkStartFunction, 0);     // Make it ready for a later context switch

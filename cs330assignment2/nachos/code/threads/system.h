@@ -36,8 +36,7 @@ extern NachOSThread *threadArray[];  			// Array of thread pointers
 extern unsigned thread_index;                  // Index into this array (also used to assign unique pid)
 extern bool initializedConsoleSemaphores;       // Used to initialize the semaphores for console I/O exactly once
 extern bool exitThreadArray[];          // Marks exited threads
-extern int threadStartTime[MAX_THREAD_COUNT]; // Array of thread start times
-extern int threadFinishTime[MAX_THREAD_COUNT]; // Array of thread finish times
+extern int threadCompletionTime[MAX_THREAD_COUNT]; // Array of thread completion times
 extern int threadWaitTime[MAX_THREAD_COUNT];   // Array of thread waiting times in the ready queue
 extern int burstStartTime;                    // Start time of the current CPU burst
 extern int burstLength;                       // Length of the last CPU burst
