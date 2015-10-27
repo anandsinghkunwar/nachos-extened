@@ -83,8 +83,14 @@ TimerInterruptHandler(int dummy)
            delete ptr;
         }
         //printf("[%d] Timer interrupt.\n", stats->totalTicks);
-        if(scheduler->policy == ROUND_ROBIN || scheduler->policy == UNIX_SCHED)        
+        if (scheduler->policy == ROUND_ROBIN) {
+            if ((stats->totalTicks - burstStartTime) >= scheduler->quantum)
+                interrupt->YieldOnReturn();
+        }
+        else if (scheduler->policy == UNIX_SCHED) {
+
             interrupt->YieldOnReturn();
+        }
     }
 }
 
