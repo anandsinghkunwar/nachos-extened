@@ -40,6 +40,7 @@ NachOSThread::NachOSThread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    priority = 50;
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
