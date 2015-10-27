@@ -70,39 +70,38 @@ Scheduler::ReadyToRun (NachOSThread *thread)
 NachOSThread *
 Scheduler::FindNextToRun ()
 {
-    if(policy == NACHOS_DEFAULT)
+    if (policy == NACHOS_DEFAULT)
         return (NachOSThread *)readyList->Remove();
-    else if(policy == NON_PREEMPT_SJF){
-        int start,temp,pid;
-        float min;
+    else if (policy == NON_PREEMPT_SJF) {
+        int firstPid, temp, nextPid;
+        float minEstimatedBurst;
         NachOSThread * thread;
         thread = (NachOSThread *)readyList->Remove();
         if (thread == NULL) return NULL;
-        start = thread->GetPID();
+        firstPid = thread->GetPID();
         thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
-        min = thread->EstimatedBurst;
-        pid = start;
-        ReadyToRun(thread);
+        minEstimatedBurst = thread->EstimatedBurst;
+        nextPid = firstPid;
+        readyList->Append((void *)thread);
         thread = (NachOSThread *)readyList->Remove();
         temp = thread->GetPID();
-        while(temp != start){
+        while (temp != firstPid) {
             thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
-            if(thread->EstimatedBurst < min){
-                min = thread->EstimatedBurst;
-                pid = temp;
+            if (thread->EstimatedBurst < minEstimatedBurst) {
+                minEstimatedBurst = thread->EstimatedBurst;
+                nextPid = thread->GetPID();
             }
-            ReadyToRun(thread);
+            readyList->Append((void *)thread);
             thread = (NachOSThread *)readyList->Remove();
             temp = thread->GetPID();
         }
-        ReadyToRun(thread);
-        while(1){
+        readyList->Append((void *)thread);
+        while (1) {
             thread = (NachOSThread *)readyList->Remove();
-            if(thread->GetPID() == pid){
+            if (thread->GetPID() == nextPid)
                 return thread;
-            }
             else
-                ReadyToRun(thread);
+                readyList->Append((void *)thread);
         }
     }
     return (NachOSThread *)readyList->Remove();
