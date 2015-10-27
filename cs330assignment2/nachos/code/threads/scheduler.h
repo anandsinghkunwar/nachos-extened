@@ -13,6 +13,11 @@
 #include "list.h"
 #include "thread.h"
 
+#define NACHOS_DEFAULT 1
+#define NON_PREEMPT_SJF 2
+#define ROUND_ROBIN 3
+#define UNIX_SCHED 4
+
 // The following class defines the scheduler/dispatcher abstraction -- 
 // the data structures and operations needed to keep track of which 
 // thread is running, and which threads are ready but not running.
