@@ -40,7 +40,7 @@ NachOSThread::NachOSThread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    priority = 50;
+    initialPriority = 50;
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -233,7 +233,7 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
     }
     LastBurst = burstLength;                          // redundant - added for completeness
 
-    threadFinishTime[pid] = stats->totalTicks;        // Thread called exit - thread has completed
+    threadCompletionTime[pid] = stats->totalTicks;        // Thread called exit - thread has completed
 
     // Set exit code in parent's structure provided the parent hasn't exited
     if (ppid != -1) {
@@ -283,32 +283,32 @@ NachOSThread::YieldCPU ()
     
     DEBUG('t', "Yielding thread \"%s\"\n", getName());
    
-    if (scheduler->policy == UNIX_SCHED) {    // 
-       scheduler->ReadyToRun(this);
-       updatePriorities();
-       nextThread = scheduler->FindNextToRun();
+    if (scheduler->policy == UNIX_SCHED) {    // Current thread is also eligible for scheduling
+       scheduler->ReadyToRun(this);           // Put current thread in the ready queue
+       nextThread = scheduler->FindNextToRun();  // Next thread cannot be null. We just added currentThread
        scheduler->Run(nextThread);
     }
     else {
-    nextThread = scheduler->FindNextToRun();
-    if (nextThread != NULL) {
-	scheduler->ReadyToRun(this);
-	scheduler->Run(nextThread);
-    }
-    else {
-       burstLength = stats->totalTicks - burstStartTime;   // CPU burst ends when thread yields
-       if (burstLength > 0) {
-          stats->nonZeroBursts++;
-          stats->totalBurst += burstLength;
-          if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
-             stats->minBurst = burstLength;
-          if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
-             stats->maxBurst = burstLength;
+       nextThread = scheduler->FindNextToRun();
+       if (nextThread != NULL) {
+          scheduler->ReadyToRun(this);
+       	 scheduler->Run(nextThread);
        }
-       LastBurst = burstLength;
-       burstStartTime = stats->totalTicks;               // A new burst starts
+       else {
+          burstLength = stats->totalTicks - burstStartTime;   // CPU burst ends when thread yields
+          if (burstLength > 0) {
+             stats->nonZeroBursts++;
+             stats->totalBurst += burstLength;
+             if ((stats->minBurst == 0) || (burstLength < stats->minBurst))
+                stats->minBurst = burstLength;
+             if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
+                stats->maxBurst = burstLength;
+          }
+          LastBurst = burstLength;
+          burstStartTime = stats->totalTicks;               // A new burst starts
+       }
+       (void) interrupt->SetLevel(oldLevel);
     }
-    (void) interrupt->SetLevel(oldLevel);
 }
 
 //----------------------------------------------------------------------
@@ -608,10 +608,7 @@ NachOSThread::GetInstructionCount (void)
 void
 NachOSThread::setStatus (ThreadStatus st)
 {
-   if (status == JUST_CREATED) {                 // Transition JUST_CREATED->Anything
-      threadStartTime[pid] = stats->totalTicks;  // Thread has started for the first time
-   }
-   else if ((status == RUNNING) && (st == READY)) {   // Transition RUNNING->READY - end of CPU burst
+   if ((status == RUNNING) && (st == READY)) {   // Transition RUNNING->READY - end of CPU burst
          burstLength = stats->totalTicks - burstStartTime;
          if (burstLength > 0) {
             stats->nonZeroBursts++;

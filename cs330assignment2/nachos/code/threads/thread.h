@@ -157,7 +157,6 @@ class NachOSThread {
 
     unsigned instructionCount;		// Keeps track of the instruction count executed by this thread
     int waitStartTime;              // Time at which I started waiting in the ready queue
-    int recentCPUusage;             // The most recent CPU usage of this thread
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
@@ -169,7 +168,7 @@ class NachOSThread {
   public:
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
-    void DecayCPU() { recentCPUusage = recentCPUusage/2; }  // Decay the CPU usage of the thread
+    void DecayCPU() { LastBurst = LastBurst/2; }  // Decay the CPU usage of the thread
 
     AddrSpace *space;			// User code this thread is running.
     int initialPriority;             // Initial priority of the thread

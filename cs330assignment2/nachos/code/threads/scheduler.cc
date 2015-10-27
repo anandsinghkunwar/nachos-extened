@@ -105,7 +105,19 @@ Scheduler::FindNextToRun ()
         }
     }
     else if (policy == UNIX_SCHED) {
-       return (NachOSThread *)readyList->SortedRemove(currentThreadPriority);
+       List *tempList = new List;
+       NachOSThread *thread;
+       int tempKey;
+       while ((thread = (NachOSThread *)readyList->Remove()) != NULL) {
+          thread->DecayCPU();
+          tempKey = thread->initialPriority + thread->LastBurst/2;
+          tempList->SortedInsert(thread, tempKey);
+       }
+       while ((thread = (NachOSThread *)tempList->Remove()) != NULL) {
+          readyList->Append(thread);
+       }
+       delete tempList;
+       return (NachOSThread *)readyList->Remove();
     }
     return (NachOSThread *)readyList->Remove();
 }
