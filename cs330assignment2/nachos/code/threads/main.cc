@@ -118,10 +118,10 @@ main(int argc, char **argv)
             if(fscanf(fp,"%d",&schedulerPolicy)>0) {
                 switch(schedulerPolicy) {
                     case 1:
-                            scheduler->policy = 1;
+                            scheduler->policy = NACHOS_DEFAULT;
                             break;
                     case 2:
-                            scheduler->policy = 2;
+                            scheduler->policy = NON_PREEMPT_SJF;
                             break;
                     case 3:
                             scheduler->quantum = 20;
@@ -129,34 +129,34 @@ main(int argc, char **argv)
                             break;
                     case 4:
                             scheduler->quantum = 20;
-                            scheduler->policy = 3;
+                            scheduler->policy = ROUND_ROBIN;
                             break;
                     case 5:
                             scheduler->quantum = 20;
-                            scheduler->policy = 3;
+                            scheduler->policy = ROUND_ROBIN;
                             break;
                     case 6:
                             scheduler->quantum = 20;
-                            scheduler->policy = 3;
+                            scheduler->policy = ROUND_ROBIN;
                             break;
                     case 7:
                             scheduler->quantum = 20;
-                            scheduler->policy = 4;
+                            scheduler->policy = UNIX_SCHED;
                             break;
                     case 8:
                             scheduler->quantum = 20;
-                            scheduler->policy = 4;
+                            scheduler->policy = UNIX_SCHED;
                             break;
                     case 9:
                             scheduler->quantum = 20;
-                            scheduler->policy = 4;
+                            scheduler->policy = UNIX_SCHED;
                             break;
                     case 10:
                             scheduler->quantum = 20;
-                            scheduler->policy = 4;
+                            scheduler->policy = UNIX_SCHED;
                             break;
                     default:
-                            scheduler->policy = 1;
+                            scheduler->policy = NACHOS_DEFAULT;
                 }
             }
 
