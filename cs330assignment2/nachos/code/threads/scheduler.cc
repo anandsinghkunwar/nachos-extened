@@ -70,6 +70,40 @@ Scheduler::ReadyToRun (NachOSThread *thread)
 NachOSThread *
 Scheduler::FindNextToRun ()
 {
+    if(policy == NACHOS_DEFAULT)
+        return (NachOSThread *)readyList->Remove();
+    else if(policy == NON_PREEMPT_SJF){
+        int start,temp,pid;
+        float min;
+        NachOSThread * thread;
+        thread = readyList->Remove();
+        start = thread->GetPID();
+        thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
+        min = thread->EstimatedBurst;
+        pid = start;
+        ReadyToRun(thread);
+        thread = readyList->Remove();
+        temp = thread->GetPID();
+        while(temp != start){
+            thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
+            if(thread->EstimatedBurst < min){
+                min = thread->EstimatedBurst;
+                pid = temp;
+            }
+            ReadyToRun(thread);
+            thread = readyList->Remove();
+            temp = thread->GetPID();
+        }
+        ReadyToRun(thread);
+        while(1){
+            thread = readyList->Remove();
+            if(thread->GetPID() == pid){
+                return thread;
+            }
+            else
+                ReadyToRun(thread);
+        }
+    }
     return (NachOSThread *)readyList->Remove();
 }
 
