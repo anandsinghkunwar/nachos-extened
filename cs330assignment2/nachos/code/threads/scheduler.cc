@@ -76,13 +76,13 @@ Scheduler::FindNextToRun ()
         int start,temp,pid;
         float min;
         NachOSThread * thread;
-        thread = readyList->Remove();
+        thread = (NachOSThread *)readyList->Remove();
         start = thread->GetPID();
         thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
         min = thread->EstimatedBurst;
         pid = start;
         ReadyToRun(thread);
-        thread = readyList->Remove();
+        thread = (NachOSThread *)readyList->Remove();
         temp = thread->GetPID();
         while(temp != start){
             thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
@@ -91,12 +91,12 @@ Scheduler::FindNextToRun ()
                 pid = temp;
             }
             ReadyToRun(thread);
-            thread = readyList->Remove();
+            thread = (NachOSThread *)readyList->Remove();
             temp = thread->GetPID();
         }
         ReadyToRun(thread);
         while(1){
-            thread = readyList->Remove();
+            thread = (NachOSThread *)readyList->Remove();
             if(thread->GetPID() == pid){
                 return thread;
             }
