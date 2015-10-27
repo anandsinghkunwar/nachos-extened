@@ -77,6 +77,7 @@ Scheduler::FindNextToRun ()
         float min;
         NachOSThread * thread;
         thread = (NachOSThread *)readyList->Remove();
+        if (thread == NULL) return NULL;
         start = thread->GetPID();
         thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
         min = thread->EstimatedBurst;

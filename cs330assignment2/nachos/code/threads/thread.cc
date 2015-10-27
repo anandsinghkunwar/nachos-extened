@@ -231,6 +231,7 @@ NachOSThread::Exit (bool terminateSim, int exitcode)
        if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
           stats->maxBurst = burstLength;
     }
+    LastBurst = burstLength;                          // redundant - added for completeness
 
     threadFinishTime[pid] = stats->totalTicks;        // Thread called exit - thread has completed
 
@@ -297,6 +298,7 @@ NachOSThread::YieldCPU ()
           if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
              stats->maxBurst = burstLength;
        }
+       LastBurst = burstLength;
        burstStartTime = stats->totalTicks;               // A new burst starts
     }
     (void) interrupt->SetLevel(oldLevel);
@@ -341,6 +343,7 @@ NachOSThread::PutThreadToSleep ()
        if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
           stats->maxBurst = burstLength;
     }
+    LastBurst = burstLength;
 
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
 	interrupt->Idle();	// no one to run, wait for an interrupt
@@ -611,6 +614,7 @@ NachOSThread::setStatus (ThreadStatus st)
             if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
                stats->maxBurst = burstLength;
          }
+         LastBurst = burstLength;
          waitStartTime = stats->totalTicks;     // Starting time of wait in ready queue
    }
    else if ((status == RUNNING) && (st == BLOCKED)) { // Transition RUNNING->BLOCKED - end of CPU burst
@@ -623,6 +627,7 @@ NachOSThread::setStatus (ThreadStatus st)
             if ((stats->maxBurst == 0) || (burstLength > stats->maxBurst))
                stats->maxBurst = burstLength;
          }
+         LastBurst = burstLength;
    }
    else if ((status == READY) && (st == RUNNING)) {  // Transition READY->RUNNING - A CPU burst is starting
       burstStartTime = stats->totalTicks;       // Starting time of this CPU burst
