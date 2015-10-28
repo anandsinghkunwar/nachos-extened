@@ -100,7 +100,7 @@
 \subsection{Inferences \& Explanations}
 \begin{itemize}
 \item The minimum value of the quantum that we have got is 20 ticks, which is the lowest permissible value for the quantum. According to how we are calculating CPU utilization, we add the CPU bursts in system mode to the total CPU burst lengths as well. Since we only have a single thread to run, decreasing the quantum just causes more and more preemptions. This increases the total CPU burst lengths (due to preemption) and adds to the CPU busy time, without changing the idle time. So it is natural to get higher CPU utilization for lower quantum values in our implementation.
-\item A downside of using such a quantum value in real-life systems is that context switches will be very frequent and the overhead due to those context switches will slow the system down, since virtually no thread will be able to complete its CPU burst in one quantum.
+\item A downside of using such a quantum value in real-life systems is that context switches will be very frequent and the overhead due to those context switches will slow the system down.
 \end{itemize}
 
 \section{Part II}
@@ -141,13 +141,15 @@
   \item The ratio decreases as the number of OUTER\_BOUND increases. This happens because the number of iterations of loop increases, which leads to more context switches, which in turn leads to more number of estimations. This decreases the contribution of the original choice of $s(0)$ to the estimation which leads to better estimation and less error.
 \end{itemize}
 \section{Part IV}
+\subsection{Data}
 \begin{center}
-    \begin{tabular}{| l | l | l | l | l | l |}
+    \begin{tabular}{| l | l | c | l | l | l | l |}
     \hline
-    Sl.No. & Scheduling Policy & Maximum & Minimum & Average & Variance \\ \hline
-    1 & Preemptive Round Robin & 163476 & 159626 & 162101.000000 & 1948704.75\\
-    2 & Preemptive Unix Scheduler & 132107 & 45537 & 109153.703125 & 747686528.00\\
+    Sl.No. & Scheduling Policy & Quantum & Maximum & Minimum & Average & Variance \\ \hline
+    1 & Preemptive Round Robin & 100 & 163476 & 159626 & 162101.000000 & 1948704.75\\
+    2 & Preemptive Unix Scheduler & 100 & 132107 & 45537 & 109153.703125 & 747686528.00\\
     \hline
     \end{tabular}
 \end{center}
+\subsection{Inferences \& Explanations}
 \end{document}
