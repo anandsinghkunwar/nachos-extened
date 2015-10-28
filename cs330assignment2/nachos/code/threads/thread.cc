@@ -307,8 +307,8 @@ NachOSThread::YieldCPU ()
           LastBurst = burstLength;
           burstStartTime = stats->totalTicks;               // A new burst starts
        }
-       (void) interrupt->SetLevel(oldLevel);
     }
+    (void) interrupt->SetLevel(oldLevel);
 }
 
 //----------------------------------------------------------------------
