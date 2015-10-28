@@ -240,6 +240,7 @@ Interrupt::Idle()
 void
 Interrupt::Halt()
 {
+    printf("error = %f \nerrorRatio = %f\n",error,error/(stats->totalTicks*1.0));
     printf("Machine halting!\n\n");
     stats->endTime = stats->totalTicks;
     stats->Print();
