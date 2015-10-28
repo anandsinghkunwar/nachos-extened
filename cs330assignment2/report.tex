@@ -132,7 +132,7 @@
 \subsection{Inferences \& Explanations}
 \begin{itemize}
   \item The error in estimation for Batch 4 is $0$ as each thread completes its execution in a single CPU burst as there are no context switches.
-  \item The ratio decreases as the number of OUTER\_BOUND increases as the number of iterations of loop increases which leads to more context switches which in turn leads to more number of estimations and the contribution of the original choice of $s(0)$ decreases which leads to better estimation and less error.
+  \item The ratio decreases as the number of OUTER\_BOUND increases. This happens because the number of iterations of loop increases, which leads to more context switches, which in turn leads to more number of estimations. This decreases the contribution of the original choice of $s(0)$ to the estimation which leads to better estimation and less error.
 \end{itemize}
 \section{Part IV}
 \begin{center}
