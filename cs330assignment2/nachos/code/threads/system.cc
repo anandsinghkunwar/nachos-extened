@@ -32,7 +32,7 @@ int threadCompletionTime[MAX_THREAD_COUNT]; // Array of thread completion times
 int threadWaitTime[MAX_THREAD_COUNT];   // Array of thread waiting times in the ready queue
 int burstStartTime;                    // Start time of the current CPU burst
 int burstLength;                       // Length of the last CPU burst
-
+float error;                            // error in cpu usage estimation
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif

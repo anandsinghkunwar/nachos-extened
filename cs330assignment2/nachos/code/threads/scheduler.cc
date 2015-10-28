@@ -74,11 +74,16 @@ Scheduler::FindNextToRun ()
         return (NachOSThread *)readyList->Remove();
     else if (policy == NON_PREEMPT_SJF) {
         int firstPid, temp, nextPid;
-        float minEstimatedBurst;
+        float minEstimatedBurst,tempError=0;
         NachOSThread * thread;
         thread = (NachOSThread *)readyList->Remove();
         if (thread == NULL) return NULL;
         firstPid = thread->GetPID();
+        tempError = thread->EstimatedBurst - thread->LastBurst;
+        if(tempError < 0)
+            error += -tempError;
+        else
+            error += tempError;
         thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
         minEstimatedBurst = thread->EstimatedBurst;
         nextPid = firstPid;
@@ -86,6 +91,11 @@ Scheduler::FindNextToRun ()
         thread = (NachOSThread *)readyList->Remove();
         temp = thread->GetPID();
         while (temp != firstPid) {
+            tempError = thread->EstimatedBurst - thread->LastBurst;
+            if(tempError < 0)
+                error += -tempError;
+            else
+                error += tempError;
             thread->EstimatedBurst = 0.5*thread->LastBurst + 0.5*thread->EstimatedBurst;
             if (thread->EstimatedBurst < minEstimatedBurst) {
                 minEstimatedBurst = thread->EstimatedBurst;

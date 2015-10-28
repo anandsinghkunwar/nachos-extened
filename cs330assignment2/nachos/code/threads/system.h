@@ -40,6 +40,7 @@ extern int threadCompletionTime[MAX_THREAD_COUNT]; // Array of thread completion
 extern int threadWaitTime[MAX_THREAD_COUNT];   // Array of thread waiting times in the ready queue
 extern int burstStartTime;                    // Start time of the current CPU burst
 extern int burstLength;                       // Length of the last CPU burst
+extern float error;                         //Error in cpu usage estimation
 
 class TimeSortedWaitQueue {             // Needed to implement syscall_Sleep
 private:
