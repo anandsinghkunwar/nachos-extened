@@ -141,7 +141,7 @@
   \item The ratio decreases as the number of OUTER\_BOUND increases. This happens because the number of iterations of loop increases, which leads to more context switches, which in turn leads to more number of estimations. This decreases the contribution of the original choice of $s(0)$ to the estimation which leads to better estimation and less error.
 \end{itemize}
 \section{Part IV}
-\subsection{Data}
+\subsection{Data (Completion Time)}
 \begin{center}
     \begin{tabular}{| l | l | c | l | l | l | l |}
     \hline
@@ -152,4 +152,8 @@
     \end{tabular}
 \end{center}
 \subsection{Inferences \& Explanations}
+\begin{itemize}
+  \item We observe that in the case of Preemptive Round Robin Scheduling, the Maximum Completion Time and the Minimum Completion Time are quite near. This implies that all threads finished in a small interval of time. However in the Preemptive Unix Scheduling, the Maximum Completion Time and the Minimum Completion Time are quite far, which implies that the threads finished quite a large interval. Also the variance in Preemptive Round Robin Scheduling is much smaller than the variance in Preemptive Unix Scheduling. This implies that some threads finish early and some quite late.
+  \item The explanation for this lies in the working of the scheduling algorithms. The Preemptive Round Robin Algorithm just circulates without considering any priority, therefore all the same threads end nearly at the same time. But the Preemptive Unix Scheduling considers the priorities of the threads, therefore a thread with higher priority gets scheduled lot more often than a thread with lower priority. Therefore the higher priority time threads finsh earlier, reducing the Minimum Completion Time.  Since some threads finish early and others late, the variance gets increased. Finishing of high priority threads early in the scheduler enables the other threads to get scheduled more. This in turn decreases the average completion time.
+\end{itemize}
 \end{document}
