@@ -119,7 +119,7 @@ Scheduler::FindNextToRun ()
        NachOSThread *thread;
        int tempKey;
        while ((thread = (NachOSThread *)readyList->Remove()) != NULL) {
-          thread->DecayCPU();
+          //thread->DecayCPU();
           tempKey = thread->initialPriority + thread->LastBurst/2;
           tempList->SortedInsert(thread, tempKey);
        }
