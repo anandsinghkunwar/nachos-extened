@@ -97,6 +97,12 @@
     \hline
     \end{tabular}
 \end{center}
+\subsection{Inferences \& Explanations}
+\begin{itemize}
+\item The minimum value of the quantum that we have got is 20 ticks, which is the lowest permissible value for the quantum. According to how we are calculating CPU utilization, we add the CPU bursts in system mode to the total CPU burst lengths as well. Since we only have a single thread to run, decreasing the quantum just causes more and more preemptions. This increases the total CPU burst lengths (due to preemption) and adds to the CPU busy time, without changing the idle time. So it is natural to get higher CPU utilization for lower quantum values in our implementation.
+\item A downside of using such a quantum value in real-life systems is that context switches will be very frequent and the overhead due to those context switches will slow the system down, since virtually no thread will be able to complete its CPU burst in one quantum.
+\end{itemize}
+
 \section{Part II}
 \begin{center}
     \begin{tabular}{| l | l | l | l |}
