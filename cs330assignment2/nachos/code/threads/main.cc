@@ -113,7 +113,7 @@ main(int argc, char **argv)
         else if (!strcmp(*argv, "-F")) {
             FILE *fp = fopen(*(argv+1),"r");
             char filename[1024];
-            int priority, schedulerPolicy, A=130;
+            int priority, schedulerPolicy, A=130, Q4=20;
             argCount = 2;
             if(fscanf(fp,"%d",&schedulerPolicy)>0) {
                 switch(schedulerPolicy) {
@@ -136,7 +136,7 @@ main(int argc, char **argv)
                             scheduler->policy = ROUND_ROBIN;
                             break;
                     case 6:
-                            scheduler->quantum = 40;
+                            scheduler->quantum = Q4;
                             scheduler->policy = ROUND_ROBIN;
                             break;
                     case 7:
@@ -152,7 +152,7 @@ main(int argc, char **argv)
                             scheduler->policy = UNIX_SCHED;
                             break;
                     case 10:
-                            scheduler->quantum = 40;
+                            scheduler->quantum = Q4;
                             scheduler->policy = UNIX_SCHED;
                             break;
                     default:
