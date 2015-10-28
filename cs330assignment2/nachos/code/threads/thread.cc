@@ -641,6 +641,9 @@ NachOSThread::setStatus (ThreadStatus st)
    else if ((status == BLOCKED) && (st == READY)) { // Transition BLOCKED->READY
       waitStartTime = stats->totalTicks;        // Starting time of wait in ready queue
    }
+   else if ((status == JUST_CREATED) && (st == READY)) { // Transition JUST_CREATED->READY
+      waitStartTime = stats->totalTicks;        // Starting time of wait in ready queue
+   }
    status = st;
 }
 #endif
