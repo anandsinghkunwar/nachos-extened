@@ -1,0 +1,153 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{titling}
+\usepackage[margin=1in]{geometry}
+\usepackage{multirow}
+\setlength{\droptitle}{-0.7in}
+
+
+\author{Group 19}
+\title{CS330 \\ Assignment 2}
+\date{}
+
+\begin{document}
+
+\maketitle
+\section{Part I}
+\textbf{Values of Quantums:}\\
+
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Q1 & Q2 & Q3 & Q4 \\ \hline
+    1 & 2 & 123 & 1 \\
+    \hline
+    \end{tabular}
+
+
+\subsection{Batch 1}
+    \begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Sl.No. & Scheduling Policy & CPU Utilisation Time & Average Wait Time \\ \hline
+    1 & Non-preemptive Default & 123 & 1 \\
+    2 & Non-preemptive SJF & 123 & 1 \\
+    3 & Preemptive Round Robin & 123 & 1 \\
+    4 & Preemptive Round Robin & 123 & 1 \\
+    5 & Preemptive Round Robin & 123 & 1 \\
+    6 & Preemptive Round Robin & 123 & 1 \\
+    7 & Preemptive Unix Scheduler & 123 & 1 \\
+    8 & Preemptive Unix Scheduler & 123 & 1 \\
+    9 & Preemptive Unix Scheduler & 123 & 1 \\
+    10 & Preemptive Unix Scheduler & 123 & 1 \\
+    \hline
+    \end{tabular}
+    \end{center}
+
+\subsection{Batch 2}
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Sl.No. & Scheduling Policy & CPU Utilisation Time & Average Wait Time \\ \hline
+    1 & Non-preemptive Default & 123 & 1 \\
+    2 & Non-preemptive SJF & 123 & 1 \\
+    3 & Preemptive Round Robin & 123 & 1 \\
+    4 & Preemptive Round Robin & 123 & 1 \\
+    5 & Preemptive Round Robin & 123 & 1 \\
+    6 & Preemptive Round Robin & 123 & 1 \\
+    7 & Preemptive Unix Scheduler & 123 & 1 \\
+    8 & Preemptive Unix Scheduler & 123 & 1 \\
+    9 & Preemptive Unix Scheduler & 123 & 1 \\
+    10 & Preemptive Unix Scheduler & 123 & 1 \\
+    \hline
+    \end{tabular}
+\end{center}
+\subsection{Batch 3}
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Sl.No. & Scheduling Policy & CPU Utilisation Time & Average Wait Time \\ \hline
+    1 & Non-preemptive Default & 123 & 1 \\
+    2 & Non-preemptive SJF & 123 & 1 \\
+    3 & Preemptive Round Robin & 123 & 1 \\
+    4 & Preemptive Round Robin & 123 & 1 \\
+    5 & Preemptive Round Robin & 123 & 1 \\
+    6 & Preemptive Round Robin & 123 & 1 \\
+    7 & Preemptive Unix Scheduler & 123 & 1 \\
+    8 & Preemptive Unix Scheduler & 123 & 1 \\
+    9 & Preemptive Unix Scheduler & 123 & 1 \\
+    10 & Preemptive Unix Scheduler & 123 & 1 \\
+    \hline
+    \end{tabular}
+\end{center}
+\subsection{Batch 4}
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Sl.No. & Scheduling Policy & CPU Utilisation Time & Average Wait Time \\ \hline
+    1 & Non-preemptive Default & 123 & 1 \\
+    2 & Non-preemptive SJF & 123 & 1 \\
+    3 & Preemptive Round Robin & 123 & 1 \\
+    4 & Preemptive Round Robin & 123 & 1 \\
+    5 & Preemptive Round Robin & 123 & 1 \\
+    6 & Preemptive Round Robin & 123 & 1 \\
+    7 & Preemptive Unix Scheduler & 123 & 1 \\
+    8 & Preemptive Unix Scheduler & 123 & 1 \\
+    9 & Preemptive Unix Scheduler & 123 & 1 \\
+    10 & Preemptive Unix Scheduler & 123 & 1 \\
+    \hline
+    \end{tabular}
+\end{center}
+\section{Part II}
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Sl.No. & Scheduling Policy & Average Wait Time \\ \hline
+    3 & Preemptive Round Robin & 123 \\
+    4 & Preemptive Round Robin & 123 \\
+    5 & Preemptive Round Robin & 123 \\
+    6 & Preemptive Round Robin & 123 \\
+    7 & Preemptive Unix Scheduler & 123 \\
+    8 & Preemptive Unix Scheduler & 123 \\
+    9 & Preemptive Unix Scheduler & 123 \\
+    10 & Preemptive Unix Scheduler & 123 \\
+    \hline
+    \end{tabular}
+\end{center}
+\section{Part III}
+\subsection{Data}
+\begin{center}
+    \begin{tabular}{| c | c | c | c | c | c | c |}
+    \hline
+    \multirow{2}{*}{Sl.No.} & \multirow{2}{*}{OUTER\_BOUND} & \multicolumn{5}{|c|}{Batch}\\ \cline{3-7}
+    
+     &  & Batch 1 & Batch 2 & Batch 3 & Batch 4 & Batch 5\\ \hline
+     1 & 4 & 0.786115 & 1.230372 & 1.312891 & 0 & 0.492920 \\
+     2 & 10 & 0.466987 & 0.585484 & 0.575920 & 0 & 0.199778\\
+     3 & 20 & 0.269229 & 0.303610 & 0.289392 & 0 & 0.100055\\
+     4 & 30 & 0.189053 & 0.204830 & 0.193150 & 0 & 0.066738\\
+     5 & 50 & 0.118283 & 0.124086 & 0.115997 & 0 & 0.040059\\
+    \hline
+    \end{tabular}
+\end{center}
+\subsection{Inferences \& Explanations}
+\begin{itemize}
+  \item The error in estimation for Batch 4 is $0$ as each thread completes its execution in a single CPU burst as there are no context switches.
+  \item The ratio decreases as the number of OUTER\_BOUND increases as the number of iterations of loop increases which leads to more context switches which in turn leads to more number of estimations and the contribution of the original choice of $s(0)$ decreases which leads to better estimation and less error.
+\end{itemize}
+\section{Part IV}
+\begin{center}
+    \begin{tabular}{| l | l | l | l | l | l |}
+    \hline
+    Sl.No. & Scheduling Policy & Maximum & Minimum & Variance & Average \\ \hline
+    3 & Preemptive Round Robin & 123 & 1 & 2 & 23\\
+    4 & Preemptive Round Robin & 123 & 1 & 2 & 23\\
+    5 & Preemptive Round Robin & 123 & 1 & 2 & 23\\
+    6 & Preemptive Round Robin & 123 & 1 & 2 & 23\\
+    7 & Preemptive Unix Scheduler & 123 & 1 & 2 & 23\\
+    8 & Preemptive Unix Scheduler & 123 & 1 & 2 & 23\\
+    9 & Preemptive Unix Scheduler & 123 & 1 & 2 & 23\\
+    10 & Preemptive Unix Scheduler & 123 & 1 & 2 & 23\\
+    \hline
+    \end{tabular}
+\end{center}
+\end{document}
