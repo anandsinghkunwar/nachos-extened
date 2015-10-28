@@ -135,13 +135,15 @@
   \item The ratio decreases as the number of OUTER\_BOUND increases. This happens because the number of iterations of loop increases, which leads to more context switches, which in turn leads to more number of estimations. This decreases the contribution of the original choice of $s(0)$ to the estimation which leads to better estimation and less error.
 \end{itemize}
 \section{Part IV}
+\subsection{Data}
 \begin{center}
-    \begin{tabular}{| l | l | l | l | l | l |}
+    \begin{tabular}{| l | l | c | l | l | l | l |}
     \hline
-    Sl.No. & Scheduling Policy & Maximum & Minimum & Average & Variance \\ \hline
-    1 & Preemptive Round Robin & 163476 & 159626 & 162101.000000 & 1948704.75\\
-    2 & Preemptive Unix Scheduler & 132107 & 45537 & 109153.703125 & 747686528.00\\
+    Sl.No. & Scheduling Policy & Quantum & Maximum & Minimum & Average & Variance \\ \hline
+    1 & Preemptive Round Robin & 100 & 163476 & 159626 & 162101.000000 & 1948704.75\\
+    2 & Preemptive Unix Scheduler & 100 & 132107 & 45537 & 109153.703125 & 747686528.00\\
     \hline
     \end{tabular}
 \end{center}
+\subsection{Inferences \& Explanations}
 \end{document}
