@@ -100,6 +100,7 @@ ExceptionHandler(ExceptionType which)
     unsigned sleeptime;		// Used by syscall_Sleep
     int semKey;            // Semaphore key used by syscall_SemGet
     Semaphore *newSemaphore; // Used by syscall_SemGet
+    int semID, adjustValue;  // Used by syscall_SemOp
 
     if ((which == SyscallException) && (type == syscall_Halt)) {
 	DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -317,6 +318,28 @@ ExceptionHandler(ExceptionType which)
           semaphoreKeys[newSemaphore->getID()] = semKey;
           machine->WriteRegister(2, newSemaphore->getID());
        }
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_SemOp)) {
+       semID = machine->ReadRegister(4);
+       adjustValue = machine->ReadRegister(5);
+       if (semaphoreArray[semID] != NULL) {
+          if (adjustValue == -1) {   // Wait operation
+             semaphoreArray[semID]->P();
+             machine->WriteRegister(2, 0);
+          }
+          else if (adjustValue == 1) {   // Signal operation
+             semaphoreArray[semID]->V();
+             machine->WriteRegister(2, 0);
+          }
+          else                          // Invalid operation
+             machine->WriteRegister(2, -1);
+       }
+       else                            // No semaphore with the given ID exists
+          machine->WriteRegister(2, -1);
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
