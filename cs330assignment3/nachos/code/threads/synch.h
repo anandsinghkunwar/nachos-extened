@@ -42,6 +42,7 @@ class Semaphore {
     Semaphore(char* debugName, int initialValue);	// set initial value
     ~Semaphore();   					// de-allocate semaphore
     char* getName() { return name;}			// debugging assist
+    int getID() { return id; }
     
     void P();	 // these are the only operations on a semaphore
     void V();	 // they are both *atomic*
@@ -50,6 +51,7 @@ class Semaphore {
     char* name;        // useful for debugging
     int value;         // semaphore value, always >= 0
     List *queue;       // threads waiting in P() for the value to be > 0
+    int id;            // id of semaphore
 };
 
 // The following class defines a "lock".  A lock can be BUSY or FREE.

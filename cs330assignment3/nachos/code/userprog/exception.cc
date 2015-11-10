@@ -98,6 +98,8 @@ ExceptionHandler(ExceptionType which)
     int whichChild;		// Used in syscall_Join
     NachOSThread *child;		// Used by syscall_Fork
     unsigned sleeptime;		// Used by syscall_Sleep
+    int semKey;            // Semaphore key used by syscall_SemGet
+    Semaphore *newSemaphore; // Used by syscall_SemGet
 
     if ((which == SyscallException) && (type == syscall_Halt)) {
 	DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -300,7 +302,27 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
-    } else {
+    }
+    // System calls for synchronization primitives
+    else if ((which == SyscallException) && (type == syscall_SemGet)) {
+       semKey = machine->ReadRegister(4);
+       for (i = 0; i < semaphoreIndex; i++) {
+          if ((semaphoreArray[i] != NULL) && (semaphoreKeys[i] == semKey)) {
+             machine->WriteRegister(2, i);
+             break;
+          }
+       }
+       if (i == semaphoreIndex) {    // If the above loop did not find any semaphore with key = semKey
+          newSemaphore = new Semaphore("Created Semaphore", 0);
+          semaphoreKeys[newSemaphore->getID()] = semKey;
+          machine->WriteRegister(2, newSemaphore->getID());
+       }
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
     }

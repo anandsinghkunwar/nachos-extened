@@ -38,6 +38,11 @@ Semaphore::Semaphore(char* debugName, int initialValue)
     name = debugName;
     value = initialValue;
     queue = new List;
+
+    semaphoreArray[semaphoreIndex] = this;
+    id = semaphoreIndex;
+    semaphoreIndex++;
+    ASSERT(semaphoreIndex < MAX_SEMAPHORE_COUNT);
 }
 
 //----------------------------------------------------------------------
