@@ -103,6 +103,8 @@ ExceptionHandler(ExceptionType which)
     int semID, adjustValue;  // Used by syscall_SemOp and syscall_SemCtl
     int *value;              // Used by syscall_SemCtl
     unsigned command;        // Used by syscall_SemCtl
+    unsigned size, numSharedPages, currentNumPages;   // Used by syscall_ShmAllocate
+    TranslationEntry *currentPageTable, *newPageTable;  // Used by syscall_ShmAllocate
 
     if ((which == SyscallException) && (type == syscall_Halt)) {
 	DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -306,6 +308,42 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
+    else if ((which == SyscallException) && (type == syscall_ShmAllocate)) {
+       size = machine->ReadRegister(4);
+       numSharedPages = divRoundUp(size, PageSize);
+       size = numSharedPages * PageSize;
+       // Check number of physical pages
+       ASSERT(numSharedPages+numPagesAllocated <= NumPhysPages);
+       // Copy current page table into new page table
+       currentNumPages = currentThread->space->GetNumPages();
+       currentPageTable = currentThread->space->GetPageTable();
+       newPageTable = new TranslationEntry[currentNumPages+numSharedPages];
+       for (i = 0; i < currentNumPages; i++) {
+          newPageTable[i] = currentPageTable[i];
+       }
+       // Allocate new physical pages for the shared region and set the translation entries
+       for (i = currentNumPages; i < currentNumPages+numSharedPages; i++) {
+          newPageTable[i].virtualPage = i;
+          newPageTable[i].physicalPage = i+numPagesAllocated;
+          newPageTable[i].valid = TRUE;
+          newPageTable[i].use = FALSE;
+          newPageTable[i].dirty = FALSE;
+          newPageTable[i].shared = TRUE;
+          newPageTable[i].readOnly = FALSE;
+       }
+       bzero(&machine->mainMemory[numPagesAllocated*PageSize], size);
+       numPagesAllocated += numSharedPages;
+       currentThread->space->setPageTable(newPageTable);
+       currentThread->space->addNumSharedPages(numSharedPages);
+       // Delete the old page table and set the machine pagetable
+       delete currentPageTable;
+       machine->pageTable = newPageTable;
+       machine->pageTableSize = currentNumPages+numSharedPages;
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
     // System calls for synchronization primitives
     else if ((which == SyscallException) && (type == syscall_SemGet)) {
        semKey = machine->ReadRegister(4);
@@ -353,6 +391,7 @@ ExceptionHandler(ExceptionType which)
        value = (int*) machine->ReadRegister(6);
        if (command == SYNCH_REMOVE) {
           delete semaphoreArray[semID];
+          semaphoreArray[semID] = NULL;
           machine->WriteRegister(2, 0);
        }
        else if (command == SYNCH_GET) {

@@ -37,12 +37,17 @@ class AddrSpace {
     unsigned GetNumPages();
 
     TranslationEntry* GetPageTable();
+    void setPageTable(TranslationEntry *table) { pageTable = table; }
+
+    unsigned GetNumSharedPages() { return numSharedPages; }
+    void addNumSharedPages(unsigned num) { numSharedPages += num; numPages += num; } // Add the number of shared pages 
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
+    unsigned numSharedPages;  // Number of shared pages in the page table
 };
 
 #endif // ADDRSPACE_H

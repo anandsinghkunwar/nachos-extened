@@ -93,6 +93,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
+   pageTable[i].shared = FALSE;
 	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
 					// a separate page, we could set its 
 					// pages to be read-only
@@ -135,9 +136,11 @@ AddrSpace::AddrSpace(OpenFile *executable)
 AddrSpace::AddrSpace(AddrSpace *parentSpace)
 {
     numPages = parentSpace->GetNumPages();
-    unsigned i, size = numPages * PageSize;
+    unsigned i, j, size = numPages * PageSize;
+    numSharedPages = parentSpace->GetNumSharedPages();
+    unsigned numNewPagesAllocated;
 
-    ASSERT(numPages+numPagesAllocated <= NumPhysPages);                // check we're not trying
+    ASSERT((numPages-numSharedPages)+numPagesAllocated <= NumPhysPages);  // check we're not trying
                                                                                 // to run anything too big --
                                                                                 // at least until we have
                                                                                 // virtual memory
@@ -147,9 +150,17 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
     // first, set up the translation
     TranslationEntry* parentPageTable = parentSpace->GetPageTable();
     pageTable = new TranslationEntry[numPages];
-    for (i = 0; i < numPages; i++) {
+    for (i = 0, j = 0; i < numPages; i++) {
         pageTable[i].virtualPage = i;
-        pageTable[i].physicalPage = i+numPagesAllocated;
+        if (parentPageTable[i].shared == TRUE) {
+           pageTable[i].physicalPage = parentPageTable[i].physicalPage;
+           pageTable[i].shared = TRUE;
+        }
+        else {
+           pageTable[i].physicalPage = j+numPagesAllocated;
+           pageTable[i].shared = FALSE;
+           j++;
+        }
         pageTable[i].valid = parentPageTable[i].valid;
         pageTable[i].use = parentPageTable[i].use;
         pageTable[i].dirty = parentPageTable[i].dirty;
@@ -158,6 +169,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
                                         			// pages to be read-only
     }
 
+    numNewPagesAllocated = j;          // Total number of new physical pages allocated
     // Copy the contents
     unsigned startAddrParent = parentPageTable[0].physicalPage*PageSize;
     unsigned startAddrChild = numPagesAllocated*PageSize;
@@ -165,7 +177,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
        machine->mainMemory[startAddrChild+i] = machine->mainMemory[startAddrParent+i];
     }
 
-    numPagesAllocated += numPages;
+    numPagesAllocated += numNewPagesAllocated;
 }
 
 //----------------------------------------------------------------------
