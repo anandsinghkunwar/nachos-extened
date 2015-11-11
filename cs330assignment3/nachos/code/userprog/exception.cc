@@ -100,7 +100,9 @@ ExceptionHandler(ExceptionType which)
     unsigned sleeptime;		// Used by syscall_Sleep
     int semKey;            // Semaphore key used by syscall_SemGet
     Semaphore *newSemaphore; // Used by syscall_SemGet
-    int semID, adjustValue;  // Used by syscall_SemOp
+    int semID, adjustValue;  // Used by syscall_SemOp and syscall_SemCtl
+    int *value;              // Used by syscall_SemCtl
+    unsigned command;        // Used by syscall_SemCtl
 
     if ((which == SyscallException) && (type == syscall_Halt)) {
 	DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -339,6 +341,37 @@ ExceptionHandler(ExceptionType which)
              machine->WriteRegister(2, -1);
        }
        else                            // No semaphore with the given ID exists
+          machine->WriteRegister(2, -1);
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_SemCtl)) {
+       semID = machine->ReadRegister(4);
+       command = machine->ReadRegister(5);
+       value = (int*) machine->ReadRegister(6);
+       if (command == SYNCH_REMOVE) {
+          delete semaphoreArray[semID];
+          machine->WriteRegister(2, 0);
+       }
+       else if (command == SYNCH_GET) {
+          if (semaphoreArray[semID] != NULL) {
+             *value = semaphoreArray[semID]->getValue();
+             machine->WriteRegister(2, 0);
+          }
+          else
+             machine->WriteRegister(2, -1);
+       }
+       else if (command == SYNCH_SET) {
+          if (semaphoreArray[semID] != NULL) {
+             semaphoreArray[semID]->setValue(*value);
+             machine->WriteRegister(2, 0);
+          }
+          else
+             machine->WriteRegister(2, -1);
+       }
+       else
           machine->WriteRegister(2, -1);
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
