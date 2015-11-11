@@ -136,9 +136,9 @@ AddrSpace::AddrSpace(OpenFile *executable)
 AddrSpace::AddrSpace(AddrSpace *parentSpace)
 {
     numPages = parentSpace->GetNumPages();
-    unsigned i, j, size = numPages * PageSize;
+    unsigned i, j;
     numSharedPages = parentSpace->GetNumSharedPages();
-    unsigned numNewPagesAllocated;
+    unsigned numNewPagesAllocated, size = (numPages-numSharedPages)*PageSize;
 
     ASSERT((numPages-numSharedPages)+numPagesAllocated <= NumPhysPages);  // check we're not trying
                                                                                 // to run anything too big --

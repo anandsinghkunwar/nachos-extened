@@ -101,7 +101,7 @@ ExceptionHandler(ExceptionType which)
     int semKey;            // Semaphore key used by syscall_SemGet
     Semaphore *newSemaphore; // Used by syscall_SemGet
     int semID, adjustValue;  // Used by syscall_SemOp and syscall_SemCtl
-    int *value;              // Used by syscall_SemCtl
+    int value;              // Used by syscall_SemCtl
     unsigned command;        // Used by syscall_SemCtl
     unsigned size, numSharedPages, currentNumPages, startAddress;   // Used by syscall_ShmAllocate
     TranslationEntry *currentPageTable, *newPageTable;  // Used by syscall_ShmAllocate
@@ -324,7 +324,7 @@ ExceptionHandler(ExceptionType which)
        // Allocate new physical pages for the shared region and set the translation entries
        for (i = currentNumPages; i < currentNumPages+numSharedPages; i++) {
           newPageTable[i].virtualPage = i;
-          newPageTable[i].physicalPage = i+numPagesAllocated;
+          newPageTable[i].physicalPage = i-currentNumPages+numPagesAllocated;
           newPageTable[i].valid = TRUE;
           newPageTable[i].use = FALSE;
           newPageTable[i].dirty = FALSE;
@@ -391,7 +391,7 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == syscall_SemCtl)) {
        semID = machine->ReadRegister(4);
        command = machine->ReadRegister(5);
-       value = (int*) machine->ReadRegister(6);
+       vaddr = machine->ReadRegister(6);
        if (command == SYNCH_REMOVE) {
           delete semaphoreArray[semID];
           semaphoreArray[semID] = NULL;
@@ -399,7 +399,8 @@ ExceptionHandler(ExceptionType which)
        }
        else if (command == SYNCH_GET) {
           if (semaphoreArray[semID] != NULL) {
-             *value = semaphoreArray[semID]->getValue();
+             value = semaphoreArray[semID]->getValue();
+             machine->WriteMem(vaddr, 4, value);
              machine->WriteRegister(2, 0);
           }
           else
@@ -407,7 +408,8 @@ ExceptionHandler(ExceptionType which)
        }
        else if (command == SYNCH_SET) {
           if (semaphoreArray[semID] != NULL) {
-             semaphoreArray[semID]->setValue(*value);
+             machine->ReadMem(vaddr, 4, &value);
+             semaphoreArray[semID]->setValue(value);
              machine->WriteRegister(2, 0);
           }
           else
