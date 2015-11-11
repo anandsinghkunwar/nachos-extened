@@ -103,7 +103,7 @@ ExceptionHandler(ExceptionType which)
     int semID, adjustValue;  // Used by syscall_SemOp and syscall_SemCtl
     int *value;              // Used by syscall_SemCtl
     unsigned command;        // Used by syscall_SemCtl
-    unsigned size, numSharedPages, currentNumPages;   // Used by syscall_ShmAllocate
+    unsigned size, numSharedPages, currentNumPages, startAddress;   // Used by syscall_ShmAllocate
     TranslationEntry *currentPageTable, *newPageTable;  // Used by syscall_ShmAllocate
 
     if ((which == SyscallException) && (type == syscall_Halt)) {
@@ -331,7 +331,8 @@ ExceptionHandler(ExceptionType which)
           newPageTable[i].shared = TRUE;
           newPageTable[i].readOnly = FALSE;
        }
-       bzero(&machine->mainMemory[numPagesAllocated*PageSize], size);
+       startAddress = numPagesAllocated*PageSize;
+       bzero(&machine->mainMemory[startAddress], size);
        numPagesAllocated += numSharedPages;
        currentThread->space->setPageTable(newPageTable);
        currentThread->space->addNumSharedPages(numSharedPages);
@@ -339,6 +340,8 @@ ExceptionHandler(ExceptionType which)
        delete currentPageTable;
        machine->pageTable = newPageTable;
        machine->pageTableSize = currentNumPages+numSharedPages;
+
+       machine->WriteRegister(2, startAddress);
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
