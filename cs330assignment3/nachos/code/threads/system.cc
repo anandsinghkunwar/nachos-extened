@@ -137,9 +137,11 @@ Initialize(int argc, char **argv)
     for (i=0; i<MAX_THREAD_COUNT; i++) { threadArray[i] = NULL; exitThreadArray[i] = false; completionTimeArray[i] = -1; }
     thread_index = 0;
     semaphoreIndex = 0;
+    for (i=0 ; i<MAX_SEMAPHORE_COUNT; i++) { semaphoreArray[i] = NULL; }
 
     sleepQueueHead = NULL;
 
+    
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
 #endif
