@@ -77,7 +77,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 						// to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
-
+    numSharedPages = 0;         //Initially there are no shared pages
     ASSERT(numPages+numPagesAllocated <= NumPhysPages);		// check we're not trying
 										// to run anything too big --
 										// at least until we have
