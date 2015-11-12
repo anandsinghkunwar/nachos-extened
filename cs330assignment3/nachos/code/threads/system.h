@@ -38,6 +38,7 @@
 
 // Synchronization primitives
 #define MAX_SEMAPHORE_COUNT 1000
+#define MAX_CONDITION_COUNT 1000
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -69,6 +70,10 @@ extern bool excludeMainThread;		// Used by completion time statistics calculatio
 extern Semaphore *semaphoreArray[]; // Array of semaphore pointers
 extern unsigned semaphoreIndex;    // Index into semaphoreArray (used for semaphore id)
 extern int semaphoreKeys[];        // Array storing semaphore key value for each semaphore
+
+extern Condition *conditionArray[]; // Array of condition pointers
+extern unsigned conditionIndex;    // Index into conditionArray (used for condition id)
+extern int conditionKeys[];        // Array storing condition key value for each condition variable
 
 class TimeSortedWaitQueue {		// Needed to implement system_Sleep
 private:

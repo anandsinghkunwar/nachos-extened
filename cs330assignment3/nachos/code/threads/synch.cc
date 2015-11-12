@@ -110,8 +110,71 @@ Lock::~Lock() {}
 void Lock::Acquire() {}
 void Lock::Release() {}
 
-Condition::Condition(char* debugName) { }
-Condition::~Condition() { }
+Condition::Condition(char* debugName)
+{
+   name = debugName;
+   queue = new List;
+
+   conditionArray[conditionIndex] = this;
+   id = conditionIndex;
+   conditionIndex++;
+   ASSERT(conditionIndex < MAX_CONDITION_COUNT);
+}
+
+Condition::~Condition()
+{
+   delete queue;
+}
+
 void Condition::Wait(Lock* conditionLock) { ASSERT(FALSE); }
 void Condition::Signal(Lock* conditionLock) { }
 void Condition::Broadcast(Lock* conditionLock) { }
+
+//---------------------------------------------------------------------
+// Condition::Wait
+//    Wait on a condition, putting the caller to sleep.
+// Assumes that the semaphore mutex is held before wait is called.
+//---------------------------------------------------------------------
+void
+Condition::Wait(Semaphore *mutex)
+{
+   IntStatus oldLevel = interrupt->SetLevel(IntOff);	// disable interrupts
+
+   queue->Append((void *)currentThread);	// go to sleep
+   mutex->V();
+   currentThread->PutThreadToSleep();
+
+   (void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
+   mutex->P();
+}
+
+//---------------------------------------------------------------------
+// Condition::Signal
+//    Signal a thread waiting on the condition, waking it up
+// and moving it to the ready queue.
+//---------------------------------------------------------------------
+void
+Condition::Signal()
+{
+   NachOSThread *thread;
+   thread = (NachOSThread *)queue->Remove();
+   if (thread != NULL)	   // put the thread into the ready queue
+	   scheduler->ReadyToRun(thread);
+}
+
+//---------------------------------------------------------------------
+// Condition::Broadcast
+//    Same as Condition::Signal, but wake up all waiting threads
+// instead of just one. Since mutex is a binary semaphore, only one
+// of them will get the chance to run.
+//---------------------------------------------------------------------
+void
+Condition::Broadcast()
+{
+   NachOSThread *thread;
+   while (!queue->IsEmpty()) {
+      thread = (NachOSThread *)queue->Remove();
+      if (thread != NULL)  // put the thread into the ready queue
+         scheduler->ReadyToRun(thread);
+   }
+}

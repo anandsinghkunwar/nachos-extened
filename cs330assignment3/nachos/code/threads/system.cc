@@ -40,6 +40,10 @@ Semaphore *semaphoreArray[MAX_SEMAPHORE_COUNT]; // Array of semaphores
 unsigned semaphoreIndex;  // Index into semaphoreArray (used for semaphore id)
 int semaphoreKeys[MAX_SEMAPHORE_COUNT]; // Array storing semaphore key value for each semaphore
 
+Condition *conditionArray[MAX_CONDITION_COUNT];  // Array of condition variables
+unsigned conditionIndex;  // Index into conditionArray (used for condition id)
+int conditionKeys[MAX_CONDITION_COUNT]; // Array storing condition key value for each condition variable
+
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif
@@ -137,7 +141,9 @@ Initialize(int argc, char **argv)
     for (i=0; i<MAX_THREAD_COUNT; i++) { threadArray[i] = NULL; exitThreadArray[i] = false; completionTimeArray[i] = -1; }
     thread_index = 0;
     semaphoreIndex = 0;
-    for (i=0 ; i<MAX_SEMAPHORE_COUNT; i++) { semaphoreArray[i] = NULL; }
+    for (i=0 ; i<MAX_SEMAPHORE_COUNT; i++) { semaphoreArray[i] = NULL; semaphoreKeys[i] = -1; }
+    conditionIndex = 0;
+    for (i=0 ; i<MAX_CONDITION_COUNT; i++) { conditionArray[i] = NULL; conditionKeys[i] = -1; }
 
     sleepQueueHead = NULL;
 

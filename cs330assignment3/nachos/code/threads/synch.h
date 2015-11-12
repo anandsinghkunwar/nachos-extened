@@ -125,6 +125,7 @@ class Condition {
 					// "no one waiting"
     ~Condition();			// deallocate the condition
     char* getName() { return (name); }
+    int getID() { return id; }
     
     void Wait(Lock *conditionLock); 	// these are the 3 operations on 
 					// condition variables; releasing the 
@@ -133,9 +134,15 @@ class Condition {
     void Signal(Lock *conditionLock);   // conditionLock must be held by
     void Broadcast(Lock *conditionLock);// the currentThread for all of 
 					// these operations
+    // Overloaded methods - Using semaphores
+    void Wait(Semaphore *mutex);       // mutex must be held before calling wait
+    void Signal();
+    void Broadcast();
 
   private:
     char* name;
     // plus some other stuff you'll need to define
+    List *queue;
+    int id;
 };
 #endif // SYNCH_H
