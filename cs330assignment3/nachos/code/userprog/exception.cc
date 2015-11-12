@@ -105,6 +105,8 @@ ExceptionHandler(ExceptionType which)
     unsigned command;        // Used by syscall_SemCtl
     unsigned size, numSharedPages, currentNumPages, startAddress;   // Used by syscall_ShmAllocate
     TranslationEntry *currentPageTable, *newPageTable;  // Used by syscall_ShmAllocate
+    int condKey, condID, op;     // Used by syscall_CondGet, syscall_CondOp, syscall_CondRemove
+    Condition *newCondition; // Used by syscall_CondGet
 
     if ((which == SyscallException) && (type == syscall_Halt)) {
 	DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -417,6 +419,67 @@ ExceptionHandler(ExceptionType which)
        }
        else
           machine->WriteRegister(2, -1);
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_CondGet)) {
+       condKey = machine->ReadRegister(4);
+       for (i = 0; i < conditionIndex; i++) {
+          if ((conditionArray[i] != NULL) && (conditionKeys[i] == condKey)) {
+             machine->WriteRegister(2, i);
+             break;
+          }
+       }
+       if (i == conditionIndex) {    // If the above loop did not find any cv with key = condKey
+          newCondition = new Condition("Created Condition");
+          conditionKeys[newCondition->getID()] = condKey;
+          machine->WriteRegister(2, newCondition->getID());
+       }
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_CondOp)) {
+       condID = machine->ReadRegister(4);
+       op = machine->ReadRegister(5);
+       semID = machine->ReadRegister(6);
+
+       if (conditionArray[condID] != NULL) {
+          if (op == COND_OP_WAIT) {
+             if (semaphoreArray[semID] != NULL) {
+                conditionArray[condID]->Wait(semaphoreArray[semID]);
+                machine->WriteRegister(2, 0);
+             }
+             else
+                machine->WriteRegister(2, -1);
+          }
+          else if (op == COND_OP_SIGNAL) {
+             conditionArray[condID]->Signal();
+             machine->WriteRegister(2, 0);
+          }
+          else if (op == COND_OP_BROADCAST) {
+             conditionArray[condID]->Broadcast();
+             machine->WriteRegister(2, 0);
+          }
+          else
+             machine->WriteRegister(2, -1);
+       }
+       else
+          machine->WriteRegister(2, -1);
+
+       // Advance program counters.
+       machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+       machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
+       machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
+    }
+    else if ((which == SyscallException) && (type == syscall_CondRemove)) {
+       condID = machine->ReadRegister(4);
+       delete conditionArray[condID];
+       conditionArray[condID] = NULL;
+       machine->WriteRegister(2, 0);
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
