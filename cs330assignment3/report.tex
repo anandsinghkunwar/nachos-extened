@@ -28,10 +28,13 @@ queue & 118 & 419606 \\
 \end{center}
 \subsection{Explanations}
 \begin{itemize}
-\item test
+\item The allocated physical pages in the main thread will all cause page faults in the forked threads in program queue. 
+\item vmtest1 and vmtest2 both have almost same number of page faults because both of the programs have same size of arrays and occupy nearly the same space. 
+\item Although, the number of ticks of these two programs differ greatly as there is an extra outer loop which merely computes sum from previously visited memory locations. This won't cause any new page fault but will increase the number of ticks of the simulation. 
 \end{itemize}
 \subsection{Comments}
+
 \begin{itemize}
-\item test
-\end{itemize}
+\item We keep the executable file and the noff header related to the process as a member of it's address space in order to retrieve data when a page fault occurs. 
+\item We have modelled our condition variable implementation on the POSIX Threads Library implementation discussed in the class.\end{itemize}
 \end{document}
