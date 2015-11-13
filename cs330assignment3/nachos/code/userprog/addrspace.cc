@@ -139,7 +139,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
 {
     numPages = parentSpace->GetNumPages();
     int phyPage;
-    unsigned i, j;
+    unsigned i, j, k;
     numSharedPages = parentSpace->GetNumSharedPages();
     unsigned numNewPagesAllocated, size = (numPages-numSharedPages)*PageSize;
 
@@ -159,11 +159,14 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
            pageTable[i].physicalPage = parentPageTable[i].physicalPage;
            pageTable[i].shared = TRUE;
         }
-        else if (pageTable[i].valid == TRUE) {
+        else if (parentPageTable[i].valid == TRUE) {
            phyPage = NextAvailPhysPage();
            ASSERT(phyPage >= 0);
            pageTable[i].physicalPage = phyPage;
-           machine->mainMemory[phyPage] = machine->mainMemory[parentPageTable[i].physicalPage];
+           currentThread->SortedInsertInWaitQueue(1000+stats->totalTicks);
+           stats->numPageFaults++;
+           for (k = 0; k < PageSize; k++)             // Copy parent's physical page for child
+              machine->mainMemory[phyPage*PageSize+k] = machine->mainMemory[parentPageTable[i].physicalPage*PageSize+k];
            pageTable[i].shared = FALSE;
            j++;
         }
