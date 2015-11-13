@@ -60,9 +60,9 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
     NoffHeader noffH;
     unsigned int i, size;
-    unsigned vpn, offset;
-    TranslationEntry *entry;
-    unsigned int pageFrame;
+   // unsigned vpn, offset;
+   // TranslationEntry *entry;
+   // unsigned int pageFrame;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -197,6 +197,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
 AddrSpace::~AddrSpace()
 {
    delete pageTable;
+   delete executableFile;
 }
 
 //----------------------------------------------------------------------
