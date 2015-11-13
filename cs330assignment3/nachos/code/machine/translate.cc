@@ -186,7 +186,7 @@ Machine::WriteMem(int addr, int size, int value)
 ExceptionType
 Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 {
-    int i, startFileAddr, phyPage;
+    int i, startFileAddr, phyPage, pageStartVirtAddr, readLength;
     unsigned int vpn, offset;
     TranslationEntry *entry;
     unsigned int pageFrame;
@@ -227,14 +227,19 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
       pageTable[vpn].valid = TRUE;
       entry->physicalPage = phyPage;
       bzero(&machine->mainMemory[phyPage*PageSize], PageSize);
-      startFileAddr = noffHeader.code.inFileAddr;   //We assume that segments are contiguous
+      pageStartVirtAddr = vpn * PageSize;   //We assume that segments are contiguous
                                                   //and start from code section
-      if ((virtAddr >= noffHeader.code.virtualAddr) && (virtAddr < (noffHeader.code.virtualAddr + noffHeader.code.size)))
-         executableFile->ReadAt(&(machine->mainMemory[vpn * PageSize]),
-         PageSize, noffHeader.code.inFileAddr + (virtAddr - noffHeader.code.virtualAddr));
-      else if ((virtAddr >= noffHeader.initData.virtualAddr) && (virtAddr < (noffHeader.initData.virtualAddr + noffHeader.initData.size)))
-         executableFile->ReadAt(&(machine->mainMemory[vpn * PageSize]),
-         PageSize, noffHeader.initData.inFileAddr + (virtAddr - noffHeader.initData.virtualAddr));
+      if (pageStartVirtAddr + PageSize <= noffHeader.uninitData.virtualAddr) 
+         readLength = PageSize;
+      else 
+         readLength = noffHeader.uninitData.virtualAddr - pageStartVirtAddr;
+      
+      if ((pageStartVirtAddr >= noffHeader.code.virtualAddr) && (pageStartVirtAddr < (noffHeader.code.virtualAddr + noffHeader.code.size))) 
+         executableFile->ReadAt(&(machine->mainMemory[phyPage * PageSize]),
+             readLength, noffHeader.code.inFileAddr + (pageStartVirtAddr - noffHeader.code.virtualAddr));
+      else if ((pageStartVirtAddr >= noffHeader.initData.virtualAddr) && (pageStartVirtAddr < (noffHeader.initData.virtualAddr + noffHeader.initData.size)))
+         executableFile->ReadAt(&(machine->mainMemory[phyPage * PageSize]),
+              readLength, noffHeader.initData.inFileAddr + (pageStartVirtAddr - noffHeader.initData.virtualAddr));
 
       numPagesAllocated = numPagesAllocated + 1;    //Increasing numPagesAllocated as 1 page is getting allocated
 
