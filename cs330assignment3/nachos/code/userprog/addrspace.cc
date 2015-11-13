@@ -142,6 +142,8 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
     unsigned i, j, k;
     numSharedPages = parentSpace->GetNumSharedPages();
     unsigned numNewPagesAllocated, size = (numPages-numSharedPages)*PageSize;
+    executableFile = parentSpace->executableFile;
+    noffHeader = parentSpace->noffHeader;
 
     ASSERT((numPages-numSharedPages)+numPagesAllocated <= NumPhysPages);  // check we're not trying
                                                                                 // to run anything too big --
@@ -159,17 +161,19 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
            pageTable[i].physicalPage = parentPageTable[i].physicalPage;
            pageTable[i].shared = TRUE;
         }
-        else if (parentPageTable[i].valid == TRUE) {
-           phyPage = NextAvailPhysPage();
-           ASSERT(phyPage >= 0);
-           physPageStatus[phyPage] = TRUE;
-           pageTable[i].physicalPage = phyPage;
-           currentThread->SortedInsertInWaitQueue(1000+stats->totalTicks);
-           stats->numPageFaults++;
-           for (k = 0; k < PageSize; k++)             // Copy parent's physical page for child
-              machine->mainMemory[phyPage*PageSize+k] = machine->mainMemory[parentPageTable[i].physicalPage*PageSize+k];
+        else {
            pageTable[i].shared = FALSE;
-           numPagesAllocated++;
+           if (parentPageTable[i].valid == TRUE) {
+              phyPage = NextAvailPhysPage();
+              ASSERT(phyPage >= 0);
+              physPageStatus[phyPage] = TRUE;
+              pageTable[i].physicalPage = phyPage;
+              currentThread->SortedInsertInWaitQueue(1000+stats->totalTicks);
+              stats->numPageFaults++;
+              for (k = 0; k < PageSize; k++)             // Copy parent's physical page for child
+                 machine->mainMemory[phyPage*PageSize+k] = machine->mainMemory[parentPageTable[i].physicalPage*PageSize+k];
+              numPagesAllocated++;
+           }
         }
         pageTable[i].valid = parentPageTable[i].valid;
         pageTable[i].use = parentPageTable[i].use;
@@ -198,7 +202,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
 AddrSpace::~AddrSpace()
 {
    delete pageTable;
-   delete executableFile;
+  // delete executableFile;
 }
 
 //----------------------------------------------------------------------
