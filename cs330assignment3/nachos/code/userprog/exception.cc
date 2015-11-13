@@ -422,6 +422,10 @@ ExceptionHandler(ExceptionType which)
        machine->WriteRegister(PCReg, machine->ReadRegister(NextPCReg));
        machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg)+4);
     }
+    else if (which == PageFaultException) {
+       stats->numPageFaults++;
+       currentThread->SortedInsertInWaitQueue (1000+stats->totalTicks);   //Need to sleep for 1000 ticks to simulate latency
+    }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);

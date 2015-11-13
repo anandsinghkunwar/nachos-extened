@@ -45,6 +45,7 @@ extern void Initialize(int argc, char **argv); 	// Initialization,
 						// called before anything else
 extern void Cleanup();				// Cleanup, called when
 						// Nachos is done.
+extern int NextAvailPhysPage();
 
 extern NachOSThread *currentThread;			// the thread holding the CPU
 extern NachOSThread *threadToBeDestroyed;  		// the thread that just finished
@@ -74,6 +75,9 @@ extern int semaphoreKeys[];        // Array storing semaphore key value for each
 extern Condition *conditionArray[]; // Array of condition pointers
 extern unsigned conditionIndex;    // Index into conditionArray (used for condition id)
 extern int conditionKeys[];        // Array storing condition key value for each condition variable
+
+extern bool physPageStatus[NumPhysPages];
+
 
 class TimeSortedWaitQueue {		// Needed to implement system_Sleep
 private:

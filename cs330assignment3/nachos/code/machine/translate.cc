@@ -186,10 +186,12 @@ Machine::WriteMem(int addr, int size, int value)
 ExceptionType
 Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 {
-    int i;
+    int i, startFileAddr, phyPage;
     unsigned int vpn, offset;
     TranslationEntry *entry;
     unsigned int pageFrame;
+    OpenFile *executableFile;
+    NoffHeader noffHeader;
 
     DEBUG('a', "\tTranslate 0x%x, %s: ", virtAddr, writing ? "write" : "read");
 
@@ -214,8 +216,28 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			virtAddr, pageTableSize);
 	    return AddressErrorException;
 	} else if (!pageTable[vpn].valid) {
-	    DEBUG('a', "virtual page # %d too large for page table size %d!\n", 
-			virtAddr, pageTableSize);
+	  //   DEBUG('a', "virtual page # %d too large for page table size %d!\n", 
+			// virtAddr, pageTableSize);
+      executableFile = currentThread->space->executableFile;
+      noffHeader = currentThread->space->noffHeader;
+      phyPage = NextAvailPhysPage();
+      ASSERT(phyPage >= 0);
+      offset = (unsigned) vpn * PageSize - noffHeader.code.virtualAddr;    //We calculate offset of Page from File Address of Code Section
+      entry = &pageTable[vpn];
+      pageTable[vpn].valid = TRUE;
+      entry->physicalPage = phyPage;
+      bzero(&machine->mainMemory[phyPage*PageSize], PageSize);
+      startFileAddr = noffHeader.code.inFileAddr;   //We assume that segments are contiguous
+                                                  //and start from code section
+      if ((virtAddr >= noffHeader.code.virtualAddr) && (virtAddr < (noffHeader.code.virtualAddr + noffHeader.code.size)))
+         executableFile->ReadAt(&(machine->mainMemory[vpn * PageSize]),
+         PageSize, noffHeader.code.inFileAddr + (virtAddr - noffHeader.code.virtualAddr));
+      else if ((virtAddr >= noffHeader.initData.virtualAddr) && (virtAddr < (noffHeader.initData.virtualAddr + noffHeader.initData.size)))
+         executableFile->ReadAt(&(machine->mainMemory[vpn * PageSize]),
+         PageSize, noffHeader.initData.inFileAddr + (virtAddr - noffHeader.initData.virtualAddr));
+
+      numPagesAllocated = numPagesAllocated + 1;    //Increasing numPagesAllocated as 1 page is getting allocated
+
 	    return PageFaultException;
 	}
 	entry = &pageTable[vpn];

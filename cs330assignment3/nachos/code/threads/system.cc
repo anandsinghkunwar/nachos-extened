@@ -44,6 +44,8 @@ Condition *conditionArray[MAX_CONDITION_COUNT];  // Array of condition variables
 unsigned conditionIndex;  // Index into conditionArray (used for condition id)
 int conditionKeys[MAX_CONDITION_COUNT]; // Array storing condition key value for each condition variable
 
+bool physPageStatus[NumPhysPages];
+
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif
@@ -63,6 +65,8 @@ PostOffice *postOffice;
 
 // External definition, to allow us to take a pointer to this function
 extern void Cleanup();
+
+extern int NextAvailPhysPage();
 
 
 //----------------------------------------------------------------------
@@ -146,6 +150,8 @@ Initialize(int argc, char **argv)
     for (i=0 ; i<MAX_CONDITION_COUNT; i++) { conditionArray[i] = NULL; conditionKeys[i] = -1; }
 
     sleepQueueHead = NULL;
+
+    for (i=0; i<NumPhysPages; i++) { physPageStatus[i] = FALSE; }   //Initialising physPageStatus of all initially to FALSE
 
     
 #ifdef USER_PROGRAM
@@ -263,5 +269,15 @@ Cleanup()
     delete interrupt;
     
     Exit(0);
+}
+
+int
+NextAvailPhysPage()
+{
+   int i;
+   for (i=0; i<NumPhysPages; i++)   {
+      if (physPageStatus[i] == FALSE)   return i;
+   }
+   return -1;   //Returning -1 if No Page is Available
 }
 

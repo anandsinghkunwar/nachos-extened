@@ -39,6 +39,7 @@ StartProcess(char *filename)
 	return;
     }
     space = new AddrSpace(executable);    
+    currentThread->space->FreePhysPages();
     currentThread->space = space;
 
     delete executable;			// close file

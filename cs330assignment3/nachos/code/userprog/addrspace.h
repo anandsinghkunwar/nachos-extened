@@ -15,6 +15,8 @@
 
 #include "copyright.h"
 #include "filesys.h"
+#include "noff.h"
+
 
 #define UserStackSize		1024 	// increase this as necessary!
 
@@ -41,6 +43,10 @@ class AddrSpace {
 
     unsigned GetNumSharedPages() { return numSharedPages; }
     void addNumSharedPages(unsigned num) { numSharedPages += num; numPages += num; } // Add the number of shared pages 
+    void FreePhysPages();
+
+    OpenFile *executableFile;   //To Store Executable File
+    NoffHeader noffHeader;      //To Store noffHeader of Executable File
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
@@ -48,6 +54,7 @@ class AddrSpace {
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
     unsigned numSharedPages;  // Number of shared pages in the page table
+
 };
 
 #endif // ADDRSPACE_H
