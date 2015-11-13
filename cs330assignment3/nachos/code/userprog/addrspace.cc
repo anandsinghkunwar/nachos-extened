@@ -60,9 +60,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
     NoffHeader noffH;
     unsigned int i, size;
-   // unsigned vpn, offset;
-   // TranslationEntry *entry;
-   // unsigned int pageFrame;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -91,7 +88,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;
-	// pageTable[i].physicalPage = i+numPagesAllocated;
 	pageTable[i].valid = FALSE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
@@ -100,34 +96,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
 					// a separate page, we could set its 
 					// pages to be read-only
     }
-// zero out the entire address space, to zero the unitialized data segment 
-// and the stack segment
-    // bzero(&machine->mainMemory[numPagesAllocated*PageSize], size);
- 
-    // numPagesAllocated += numPages;
-
-// then, copy in the code and data segments into memory
-   //  if (noffH.code.size > 0) {
-   //      DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
-			// noffH.code.virtualAddr, noffH.code.size);
-   //      vpn = noffH.code.virtualAddr/PageSize;
-   //      offset = noffH.code.virtualAddr%PageSize;
-   //      entry = &pageTable[vpn];
-   //      pageFrame = entry->physicalPage;
-   //      executable->ReadAt(&(machine->mainMemory[pageFrame * PageSize + offset]),
-			// noffH.code.size, noffH.code.inFileAddr);
-   //  }
-   //  if (noffH.initData.size > 0) {
-   //      DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
-			// noffH.initData.virtualAddr, noffH.initData.size);
-   //      vpn = noffH.initData.virtualAddr/PageSize;
-   //      offset = noffH.initData.virtualAddr%PageSize;
-   //      entry = &pageTable[vpn];
-   //      pageFrame = entry->physicalPage;
-   //      executable->ReadAt(&(machine->mainMemory[pageFrame * PageSize + offset]),
-			// noffH.initData.size, noffH.initData.inFileAddr);
-   //  }
-
 }
 
 //----------------------------------------------------------------------
@@ -139,7 +107,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
 {
     numPages = parentSpace->GetNumPages();
     int phyPage;
-    unsigned i, j, k;
+    unsigned i, k;
     numSharedPages = parentSpace->GetNumSharedPages();
     unsigned numNewPagesAllocated, size = (numPages-numSharedPages)*PageSize;
     executableFile = parentSpace->executableFile;
@@ -182,16 +150,6 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
                                         			// a separate page, we could set its
                                         			// pages to be read-only
     }
-
-    // numNewPagesAllocated = j;          // Total number of new physical pages allocated
-    // Copy the contents
-    // unsigned startAddrParent = parentPageTable[0].physicalPage*PageSize;
-    // unsigned startAddrChild = numPagesAllocated*PageSize;
-    // for (i=0; i<size; i++) {
-    //    machine->mainMemory[startAddrChild+i] = machine->mainMemory[startAddrParent+i];
-    // }
-
-    // numPagesAllocated += numNewPagesAllocated;
 }
 
 //----------------------------------------------------------------------
@@ -202,7 +160,6 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
 AddrSpace::~AddrSpace()
 {
    delete pageTable;
-  // delete executableFile;
 }
 
 //----------------------------------------------------------------------
