@@ -242,5 +242,4 @@ AddrSpace::FreePhysPages()
                                                   // everytime we free a page
       }
    }
-
 }
