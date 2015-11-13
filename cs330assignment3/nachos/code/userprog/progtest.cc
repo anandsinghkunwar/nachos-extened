@@ -162,7 +162,6 @@ ReadInputAndFork (char *filename)
       sprintf(buffer,"Thread_%d",i+1);
       NachOSThread *child = new NachOSThread(buffer, priority[i]);
       child->space = new AddrSpace (inFile);
-      //delete inFile;
       child->space->InitRegisters();             // set the initial register values
       child->SaveUserState ();
       child->ThreadStackAllocate (BatchStartFunction, 0);
