@@ -153,7 +153,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
     // first, set up the translation
     TranslationEntry* parentPageTable = parentSpace->GetPageTable();
     pageTable = new TranslationEntry[numPages];
-    for (i = 0, j = 0; i < numPages; i++) {
+    for (i = 0; i < numPages; i++) {
         pageTable[i].virtualPage = i;
         if (parentPageTable[i].shared == TRUE) {
            pageTable[i].physicalPage = parentPageTable[i].physicalPage;
@@ -162,13 +162,14 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
         else if (parentPageTable[i].valid == TRUE) {
            phyPage = NextAvailPhysPage();
            ASSERT(phyPage >= 0);
+           physPageStatus[phyPage] = TRUE;
            pageTable[i].physicalPage = phyPage;
            currentThread->SortedInsertInWaitQueue(1000+stats->totalTicks);
            stats->numPageFaults++;
            for (k = 0; k < PageSize; k++)             // Copy parent's physical page for child
               machine->mainMemory[phyPage*PageSize+k] = machine->mainMemory[parentPageTable[i].physicalPage*PageSize+k];
            pageTable[i].shared = FALSE;
-           j++;
+           numPagesAllocated++;
         }
         pageTable[i].valid = parentPageTable[i].valid;
         pageTable[i].use = parentPageTable[i].use;
@@ -178,7 +179,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
                                         			// pages to be read-only
     }
 
-    numNewPagesAllocated = j;          // Total number of new physical pages allocated
+    // numNewPagesAllocated = j;          // Total number of new physical pages allocated
     // Copy the contents
     // unsigned startAddrParent = parentPageTable[0].physicalPage*PageSize;
     // unsigned startAddrChild = numPagesAllocated*PageSize;
@@ -186,7 +187,7 @@ AddrSpace::AddrSpace(AddrSpace *parentSpace)
     //    machine->mainMemory[startAddrChild+i] = machine->mainMemory[startAddrParent+i];
     // }
 
-    numPagesAllocated += numNewPagesAllocated;
+    // numPagesAllocated += numNewPagesAllocated;
 }
 
 //----------------------------------------------------------------------
