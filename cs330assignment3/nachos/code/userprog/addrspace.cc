@@ -275,7 +275,6 @@ AddrSpace::FreePhysPages()
          numPagesAllocated = numPagesAllocated - 1; //numPagesAllocated is being decreased
                                                   // everytime we free a page
       }
-      
-    }
+   }
 
 }

@@ -138,6 +138,8 @@ ExceptionHandler(ExceptionType which)
           machine->ReadMem(vaddr, 1, &memval);
        }
        buffer[i] = (*(char*)&memval);
+       currentThread->space->FreePhysPages();
+       delete currentThread->space;
        StartProcess(buffer);
     }
     else if ((which == SyscallException) && (type == syscall_Join)) {
@@ -488,7 +490,7 @@ ExceptionHandler(ExceptionType which)
     else if (which == PageFaultException) {
        stats->numPageFaults++;
        currentThread->SortedInsertInWaitQueue (1000+stats->totalTicks);   //Need to sleep for 1000 ticks to simulate latency
-     }
+    }
     else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
