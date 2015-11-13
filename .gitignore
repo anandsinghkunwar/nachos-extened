@@ -51,3 +51,5 @@ cs330assignment3/nachos/code/*
 
 !cs330assignment3/nachos/code/userprog/
 !cs330assignment3/nachos/code/test/
+!cs330assignment3/report.tex
+!cs330assignment3/makefile
