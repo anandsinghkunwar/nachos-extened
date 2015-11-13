@@ -129,13 +129,13 @@ ExceptionHandler(ExceptionType which)
     else if ((which == SyscallException) && (type == syscall_Exec)) {
        // Copy the executable name into kernel space
        vaddr = machine->ReadRegister(4);
-       machine->ReadMem(vaddr, 1, &memval);
+       while(!machine->ReadMem(vaddr, 1, &memval));
        i = 0;
        while ((*(char*)&memval) != '\0') {
           buffer[i] = (*(char*)&memval);
           i++;
           vaddr++;
-          machine->ReadMem(vaddr, 1, &memval);
+          while(!machine->ReadMem(vaddr, 1, &memval));
        }
        buffer[i] = (*(char*)&memval);
        currentThread->space->FreePhysPages();
@@ -225,12 +225,12 @@ ExceptionHandler(ExceptionType which)
     }
     else if ((which == SyscallException) && (type == syscall_PrintString)) {
        vaddr = machine->ReadRegister(4);
-       machine->ReadMem(vaddr, 1, &memval);
+       while(!machine->ReadMem(vaddr, 1, &memval));
        while ((*(char*)&memval) != '\0') {
           writeDone->P() ;
           console->PutChar(*(char*)&memval);
           vaddr++;
-          machine->ReadMem(vaddr, 1, &memval);
+          while(!machine->ReadMem(vaddr, 1, &memval));
        }
        // Advance program counters.
        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
@@ -328,16 +328,18 @@ ExceptionHandler(ExceptionType which)
        // Allocate new physical pages for the shared region and set the translation entries
        for (i = currentNumPages; i < currentNumPages+numSharedPages; i++) {
           newPageTable[i].virtualPage = i;
-          newPageTable[i].physicalPage = i-currentNumPages+numPagesAllocated;
+          newPageTable[i].physicalPage = NextAvailPhysPage();
+          bzero(&machine->mainMemory[newPageTable[i].physicalPage * PageSize], PageSize);
+          physPageStatus[newPageTable[i].physicalPage] = TRUE;
           newPageTable[i].valid = TRUE;
           newPageTable[i].use = FALSE;
           newPageTable[i].dirty = FALSE;
           newPageTable[i].shared = TRUE;
           newPageTable[i].readOnly = FALSE;
+          stats->numPageFaults++;
+          numPagesAllocated++;
        }
-       startAddress = numPagesAllocated*PageSize;
-       bzero(&machine->mainMemory[startAddress], size);
-       numPagesAllocated += numSharedPages;
+       startAddress = currentNumPages*PageSize;
        currentThread->space->setPageTable(newPageTable);
        currentThread->space->addNumSharedPages(numSharedPages);
        // Delete the old page table and set the machine pagetable
@@ -404,7 +406,7 @@ ExceptionHandler(ExceptionType which)
        else if (command == SYNCH_GET) {
           if (semaphoreArray[semID] != NULL) {
              value = semaphoreArray[semID]->getValue();
-             machine->WriteMem(vaddr, 4, value);
+             while(!machine->WriteMem(vaddr, 4, value));
              machine->WriteRegister(2, 0);
           }
           else
@@ -412,7 +414,7 @@ ExceptionHandler(ExceptionType which)
        }
        else if (command == SYNCH_SET) {
           if (semaphoreArray[semID] != NULL) {
-             machine->ReadMem(vaddr, 4, &value);
+             while(!machine->ReadMem(vaddr, 4, &value));
              semaphoreArray[semID]->setValue(value);
              machine->WriteRegister(2, 0);
           }
